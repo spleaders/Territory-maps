@@ -308,10 +308,10 @@ function getParcelArea(feature) {
 }
 function getOpacity(feature) {
   var area = getParcelArea(feature);
-  if (area < 0.000005) return 0.55;
-  if (area < 0.00005)  return 0.40;
-  if (area < 0.0002)   return 0.25;
-  return 0.15;
+  if (area < 0.000005) return 0.35;
+  if (area < 0.00005)  return 0.25;
+  if (area < 0.0002)   return 0.18;
+  return 0.12;
 }
 L.geoJSON(parcelsData, {
   style: function(feature) {
@@ -319,8 +319,8 @@ L.geoJSON(parcelsData, {
     return {
       fillColor: p.fill,
       fillOpacity: getOpacity(feature),
-      color: 'rgba(0,0,0,0.5)',
-      weight: 1.5
+      color: 'rgba(0,0,0,0.65)',
+      weight: 2.0
     };
   },
   onEachFeature: function(feature, layer) {

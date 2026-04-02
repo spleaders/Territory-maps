@@ -253,8 +253,8 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
 <script>
 var map = L.map('map', {zoomControl: true, preferCanvas: true, scrollWheelZoom: false, zoomSnap: 0.25, zoomDelta: 0.25});
 document.getElementById('map').addEventListener('wheel', function(e){ e.preventDefault(); var delta = e.deltaY > 0 ? -0.25 : 0.25; var mousePos = map.mouseEventToLatLng(e); map.setZoomAround(mousePos, map.getZoom() + delta); }, {passive: false});
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: ' OpenStreetMap contributors', maxZoom: 20
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: ' OpenStreetMap contributors | CartoDB', maxZoom: 20, subdomains: 'abcd'
 }).addTo(map);
 
 var boundaryData = {"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"coordinates": [[[-88.37486565113069, 43.74379740119069], [-88.39419364929199, 43.7444678526774], [-88.39477300643927, 43.7471185815542], [-88.39479446411138, 43.74888566892835], [-88.39470863342285, 43.7503892021938], [-88.39354991912842, 43.754667090218604], [-88.39157581329346, 43.76188920715409], [-88.38955879211426, 43.7691414429562], [-88.37859392166143, 43.76901748049976], [-88.37769269943243, 43.768932256161904], [-88.37707042694097, 43.7686998255324], [-88.37636232376104, 43.76835892564197], [-88.3751392364502, 43.76762288516149], [-88.37103009223944, 43.76515902059874], [-88.3710247278214, 43.760130252537905], [-88.37105154991156, 43.75482208042123], [-88.37089061737062, 43.74494840288045], [-88.37086379528046, 43.74321995429638], [-88.37484419345857, 43.74324708279866], [-88.37486565113069, 43.74379740119069]]], "type": "Polygon"}, "properties": {}}]};

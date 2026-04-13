@@ -275,8 +275,14 @@ if (buildingsData) {
     interactive: true,
     onEachFeature: function(feature, layer) {
       var p = feature.properties;
-      // Only bind popup if this building has address data attached
-      // (populated by refresh_html_map.py after classifier runs)
+      // Permanent sub-ID label on each building footprint
+      var label = p.subid ? p.subid.toUpperCase() : (p.mapid ? String(p.mapid) : '');
+      if (label) {
+        layer.bindTooltip(label, {
+          permanent: true, direction: 'center',
+          className: 'mapid-label', offset: [0, 0]
+        });
+      }
       if (p.site && p.site !== '') {
         var subLabel = p.subid ? p.subid.toUpperCase() : ('Parcel #' + p.mapid);
         var saluteHtml = p.salute && p.salute !== 'nan' && p.salute !== ''

@@ -261,7 +261,7 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r
 }).addTo(map);
 
 var boundaryData = {"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"coordinates": [[[-88.47596347331995, 43.79076508514581], [-88.47485303878778, 43.79076895756769], [-88.47484767436976, 43.789324526808144], [-88.47652673721313, 43.78932839932334], [-88.4768003225326, 43.78942133961271], [-88.47678959369654, 43.78972339455493], [-88.47596347331995, 43.7897272670443], [-88.47596347331995, 43.79076508514581], [-88.47596347331995, 43.79076508514581], [-88.47596347331995, 43.79076508514581]]], "type": "Polygon"}, "properties": {}}]};
-var buildingsData = {"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"coordinates": [[[[-88.475093, 43.789807], [-88.475331, 43.789805], [-88.475334, 43.790158], [-88.475096, 43.790159], [-88.475093, 43.789807]]]], "type": "MultiPolygon"}, "properties": {"mapid": 2, "subid": "2b", "site": "759 SECURITY DR, Fond du Lac WI 54935", "owner": "COUNTRYSIDE VILLAS LLC", "salute": "Dear Resident", "sheet": "Multi_Occupant"}}, {"type": "Feature", "geometry": {"coordinates": [[[[-88.476258, 43.789443], [-88.476742, 43.789475], [-88.476722, 43.789638], [-88.476238, 43.789606], [-88.476258, 43.789443]]]], "type": "MultiPolygon"}, "properties": {"mapid": 2, "subid": "2f", "site": "791 SECURITY DR, Fond du Lac WI 54935", "owner": "COUNTRYSIDE VILLAS LLC", "salute": "Dear Resident", "sheet": "Multi_Occupant"}}, {"type": "Feature", "geometry": {"coordinates": [[[[-88.475096, 43.790685], [-88.475094, 43.790335], [-88.475341, 43.790334], [-88.475343, 43.790685], [-88.475096, 43.790685]]]], "type": "MultiPolygon"}, "properties": {"mapid": 2, "subid": "2c", "site": "761 SECURITY DR, Fond du Lac WI 54935", "owner": "COUNTRYSIDE VILLAS LLC", "salute": "Dear Resident", "sheet": "Multi_Occupant"}}, {"type": "Feature", "geometry": {"coordinates": [[[[-88.47545, 43.790333], [-88.475694, 43.790331], [-88.475698, 43.790682], [-88.475454, 43.790684], [-88.47545, 43.790333]]]], "type": "MultiPolygon"}, "properties": {"mapid": 2, "subid": "2d", "site": "765 SECURITY DR, Fond du Lac WI 54935", "owner": "COUNTRYSIDE VILLAS LLC", "salute": "Dear Resident", "sheet": "Multi_Occupant"}}, {"type": "Feature", "geometry": {"coordinates": [[[[-88.475449, 43.790159], [-88.475449, 43.789805], [-88.475691, 43.789805], [-88.47569, 43.790159], [-88.475449, 43.790159]]]], "type": "MultiPolygon"}, "properties": {"mapid": 2, "subid": "2e", "site": "767 SECURITY DR, Fond du Lac WI 54935", "owner": "COUNTRYSIDE VILLAS LLC", "salute": "Dear Resident", "sheet": "Multi_Occupant"}}, {"type": "Feature", "geometry": {"coordinates": [[[[-88.475223, 43.789614], [-88.475224, 43.789444], [-88.475712, 43.789447], [-88.475711, 43.789616], [-88.475223, 43.789614]]]], "type": "MultiPolygon"}, "properties": {"mapid": 2, "subid": "2a", "site": "755 SECURITY DR, Fond du Lac WI 54935", "owner": "COUNTRYSIDE VILLAS LLC", "salute": "Dear Resident", "sheet": "Multi_Occupant"}}]};
+var buildingsData = {"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-88.475224, 43.789444], [-88.475712, 43.789447], [-88.475711, 43.789616], [-88.475223, 43.789614], [-88.475224, 43.789444]]]}, "properties": {"mapid": 2, "subid": "2a", "site": "755 SECURITY DR, Fond du Lac WI 54935", "owner": "COUNTRYSIDE VILLAS LLC", "salute": "Dear Resident", "sheet": "Multi_Occupant"}}, {"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-88.475331, 43.789805], [-88.475334, 43.790158], [-88.475096, 43.790159], [-88.475093, 43.789807], [-88.475331, 43.789805]]]}, "properties": {"mapid": 2, "subid": "2b", "site": "759 SECURITY DR, Fond du Lac WI 54935", "owner": "COUNTRYSIDE VILLAS LLC", "salute": "Dear Resident", "sheet": "Multi_Occupant"}}, {"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-88.475449, 43.789805], [-88.475691, 43.789805], [-88.47569, 43.790159], [-88.475449, 43.790159], [-88.475449, 43.789805]]]}, "properties": {"mapid": 2, "subid": "2e", "site": "767 SECURITY DR, Fond du Lac WI 54935", "owner": "COUNTRYSIDE VILLAS LLC", "salute": "Dear Resident", "sheet": "Multi_Occupant"}}, {"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-88.475694, 43.790331], [-88.475698, 43.790682], [-88.475454, 43.790684], [-88.47545, 43.790333], [-88.475694, 43.790331]]]}, "properties": {"mapid": 2, "subid": "2d", "site": "765 SECURITY DR, Fond du Lac WI 54935", "owner": "COUNTRYSIDE VILLAS LLC", "salute": "Dear Resident", "sheet": "Multi_Occupant"}}, {"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-88.475094, 43.790335], [-88.475341, 43.790334], [-88.475343, 43.790685], [-88.475096, 43.790685], [-88.475094, 43.790335]]]}, "properties": {"mapid": 2, "subid": "2c", "site": "761 SECURITY DR, Fond du Lac WI 54935", "owner": "COUNTRYSIDE VILLAS LLC", "salute": "Dear Resident", "sheet": "Multi_Occupant"}}, {"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-88.476742, 43.789475], [-88.476722, 43.789638], [-88.476238, 43.789606], [-88.476258, 43.789443], [-88.476742, 43.789475]]]}, "properties": {"mapid": 2, "subid": "2f", "site": "791 SECURITY DR, Fond du Lac WI 54935", "owner": "COUNTRYSIDE VILLAS LLC", "salute": "Dear Resident", "sheet": "Multi_Occupant"}}]};
 var tableData = [{"mapid": "(No data)", "owner": "", "owner2": "", "site": "", "site_city": "", "site_state": "", "site_zip": "", "mail": "", "city": "", "state": "", "zip": "", "btype": "", "ownertype": "", "occupied": "", "confidence": "", "addressas": "", "salute": "", "dnc": "", "research": "", "notes": "", "sheet": "Duplicates"}, {"mapid": "1", "owner": "COUNTRYSIDE VILLAS III LLC", "owner2": "", "site": "406 N PETERS AVENUE", "site_city": "", "site_state": "", "site_zip": "", "mail": "% FOCUS PROPERTY MANAGEMENT", "city": "KAUKAUNA", "state": "WI", "zip": "54130", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Countryside Villas Iii Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant"}, {"mapid": "2a", "owner": "COUNTRYSIDE VILLAS LLC", "owner2": "", "site": "755 SECURITY DR", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "% MIDWEST REALTY MGMT INC", "city": "OSHKOSH", "state": "WI", "zip": "54904", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Countryside Villas Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant"}, {"mapid": "2b", "owner": "COUNTRYSIDE VILLAS LLC", "owner2": "", "site": "759 SECURITY DR", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "% MIDWEST REALTY MGMT INC", "city": "OSHKOSH", "state": "WI", "zip": "54904", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Countryside Villas Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant"}, {"mapid": "2c", "owner": "COUNTRYSIDE VILLAS LLC", "owner2": "", "site": "761 SECURITY DR", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "% MIDWEST REALTY MGMT INC", "city": "OSHKOSH", "state": "WI", "zip": "54904", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Countryside Villas Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant"}, {"mapid": "2d", "owner": "COUNTRYSIDE VILLAS LLC", "owner2": "", "site": "765 SECURITY DR", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "% MIDWEST REALTY MGMT INC", "city": "OSHKOSH", "state": "WI", "zip": "54904", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Countryside Villas Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant"}, {"mapid": "2e", "owner": "COUNTRYSIDE VILLAS LLC", "owner2": "", "site": "767 SECURITY DR", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "% MIDWEST REALTY MGMT INC", "city": "OSHKOSH", "state": "WI", "zip": "54904", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Countryside Villas Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant"}, {"mapid": "2f", "owner": "COUNTRYSIDE VILLAS LLC", "owner2": "", "site": "791 SECURITY DR", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "% MIDWEST REALTY MGMT INC", "city": "OSHKOSH", "state": "WI", "zip": "54904", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Countryside Villas Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant"}];
 
 if (buildingsData) {
@@ -272,17 +272,11 @@ if (buildingsData) {
       color: '#333333',
       weight: 0.8
     },
-    interactive: true,
-    onEachFeature: function(feature, layer) {
+    interactive: isApartment,
+    onEachFeature: isApartment ? function(feature, layer) {
       var p = feature.properties;
-      // Permanent sub-ID label on each building footprint
-      var label = p.subid ? p.subid.toUpperCase() : (p.mapid ? String(p.mapid) : '');
-      if (label) {
-        layer.bindTooltip(label, {
-          permanent: true, direction: 'center',
-          className: 'mapid-label', offset: [0, 0]
-        });
-      }
+      // Only bind popup if this building has address data attached
+      // (populated by refresh_html_map.py after classifier runs)
       if (p.site && p.site !== '') {
         var subLabel = p.subid ? p.subid.toUpperCase() : ('Parcel #' + p.mapid);
         var saluteHtml = p.salute && p.salute !== 'nan' && p.salute !== ''
@@ -295,7 +289,7 @@ if (buildingsData) {
           '</div>';
         layer.bindPopup(html, {maxWidth: 300});
       }
-    }
+    } : function(feature, layer) {}
   }).addTo(map);
 }
 
@@ -373,33 +367,6 @@ L.geoJSON(parcelsData, {
     });
   }
 }).addTo(map);
-
-if (buildingsData) {
-  L.geoJSON(buildingsData, {
-    style: {
-      fillColor: '#555555',
-      fillOpacity: 0.55,
-      color: '#333333',
-      weight: 0.8
-    },
-    interactive: true,
-    onEachFeature: function(feature, layer) {
-      var p = feature.properties;
-      if (p.site && p.site !== '') {
-        var subLabel = p.subid ? p.subid.toUpperCase() : ('Parcel #' + p.mapid);
-        var saluteHtml = p.salute && p.salute !== 'nan' && p.salute !== ''
-          ? '<div class="popup-mail" style="color:#888">Salutation: ' + p.salute + '</div>' : '';
-        var html = '<div class="popup-inner">' +
-          '<div class="popup-mapid">Building ' + subLabel + '</div>' +
-          '<div class="popup-site">' + p.site + '</div>' +
-          '<div class="popup-owner">' + (p.owner || '') + '</div>' +
-          saluteHtml +
-          '</div>';
-        layer.bindPopup(html, {maxWidth: 300});
-      }
-    }
-  }).addTo(map);
-}
 
 if (!boundaryData) {
   map.setView([43.77, -88.43], 14);

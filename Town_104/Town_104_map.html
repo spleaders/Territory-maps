@@ -275,8 +275,6 @@ if (buildingsData) {
     interactive: isApartment,
     onEachFeature: isApartment ? function(feature, layer) {
       var p = feature.properties;
-      // Only bind popup if this building has address data attached
-      // (populated by refresh_html_map.py after classifier runs)
       if (p.site && p.site !== '') {
         var subLabel = p.subid ? p.subid.toUpperCase() : ('Parcel #' + p.mapid);
         var saluteHtml = p.salute && p.salute !== 'nan' && p.salute !== ''

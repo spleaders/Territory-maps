@@ -202,13 +202,29 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
   display: none;
 }
 #mapid-search-clear:hover { color: #333; }
+.ml-hdr{padding:10px 16px;font-weight:bold;font-size:13px;color:white;letter-spacing:0.5px;}
+.ml-col-header{display:grid;grid-template-columns:60px 200px 200px 240px 30px 200px 240px;
+  background:#4472C4;color:white;font-size:12px;font-weight:bold;}
+.ml-col-header span{padding:6px 8px;white-space:nowrap;overflow:hidden;
+  border-right:1px solid rgba(255,255,255,0.2);}
+.ml-row{display:grid;grid-template-columns:60px 200px 200px 240px 30px 200px 240px;
+  font-size:12px;border-bottom:1px solid #eee;}
+.ml-row span{padding:5px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ml-row:hover span{white-space:normal;overflow:visible;background:#fffde7;
+  position:relative;z-index:5;}
+.ml-even-g{background:#E2EFDA;}
+.ml-odd{background:#FFFFFF;}
+.ml-even-y{background:#FFF2CC;}
+.ml-dnc{background:#FFB3B3;}
+.ml-gap{height:12px;background:#e8e8e8;}
+.ml-none{padding:8px 16px;color:#888;font-size:12px;font-style:italic;}
 </style>
 </head>
 <body>
 <div id="header">
   <div>
     <h1>R_271 Territory</h1>
-    <div class="subtitle">R_271_20260421_2247.xlsx</div>
+    <div class="subtitle">R_271_20260421_2257.xlsx</div>
   </div>
   <div class="stats">
     186 parcels &nbsp;&nbsp;
@@ -440,5 +456,54 @@ setTimeout(updateLabelSizes, 500);
   pointer-events: none; transition: font-size 0.1s;
 }
 </style>
-<script><style>.ml-section-header{padding:10px 16px;font-weight:bold;font-size:13px;color:white;letter-spacing:0.5px;}.ml-col-header{display:grid;grid-template-columns:60px 200px 200px 240px 30px 200px 240px;background:#4472C4;color:white;font-size:12px;font-weight:bold;padding:0;}.ml-col-header span{padding:6px 8px;white-space:nowrap;overflow:hidden;border-right:1px solid rgba(255,255,255,0.2);}.ml-row{display:grid;grid-template-columns:60px 200px 200px 240px 30px 200px 240px;font-size:12px;border-bottom:1px solid #eee;}.ml-row span{padding:5px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}.ml-row:hover span{white-space:normal;overflow:visible;background:#fffde7;position:relative;z-index:5;}.ml-row.conf-even{background:#E2EFDA;}.ml-row.conf-odd{background:#FFFFFF;}.ml-row.res-even{background:#FFF2CC;}.ml-row.res-odd{background:#FFFFFF;}.ml-row.dnc-row{background:#FFB3B3;}.ml-gap{height:12px;background:#e8e8e8;}.ml-none{padding:8px 16px;color:#888;font-size:12px;font-style:italic;}</style>var _allRows=[];function _colHdr(){return "<div class=ml-col-header>"+"<span>MapID</span><span>Owner 1</span><span>Owner 2</span>"+"<span>Site Address</span><span>St</span>"+"<span>Reason / Notes</span><span>Mailing Address</span>"+"</div>";}function _row(p,cls){var sa=(p.site||"")+(p.site_city?", "+p.site_city:"");var ma=(p.mail||"")+(p.city?", "+p.city:"")+(p.state?" "+p.state:"")+(p.zip?" "+p.zip:"");return "<div class='ml-row "+cls+"'>"+"<span>"+p.mapid+"</span>"+"<span>"+(p.owner||"")+"</span>"+"<span>"+(p.owner2||"")+"</span>"+"<span>"+sa+"</span>"+"<span>"+(p.site_state||"")+"</span>"+"<span>"+(p.notes||"")+"</span>"+"<span>"+ma+"</span>"+"</div>";}function buildTable(){_allRows=tableData.slice();renderTable(_allRows);}function filterTable(){var q=document.getElementById("search-box").value.toLowerCase();renderTable(_allRows.filter(function(p){return [p.mapid,p.owner,p.owner2,p.site,p.site_city,p.mail,p.city,p.notes].join(" ").toLowerCase().indexOf(q)>=0;}));}function renderTable(rows){var conf=[],res=[],dnc=[];rows.forEach(function(p){if(p.dnc==="YES"){dnc.push(p);}else if(p.occupied==="Yes"&&p.confidence==="High"&&p.research!=="Yes"){conf.push(p);}else{res.push(p);}});var h="";h+="<div class=ml-section-header style=background:#375623>"+"✔  CONFIDENT RESIDENTS ("+conf.length+" parcels) — Ready to write letters</div>";h+=_colHdr();conf.forEach(function(p,i){h+=_row(p,i%2===0?"conf-even":"conf-odd");});if(!conf.length)h+="<div class=ml-none>None</div>";h+="<div class=ml-gap></div>";h+="<div class=ml-section-header style=background:#7F6000>"+"?  NEEDS RESEARCH ("+res.length+" parcels) — Verify before writing</div>";h+=_colHdr();res.forEach(function(p,i){h+=_row(p,i%2===0?"res-even":"res-odd");});if(!res.length)h+="<div class=ml-none>None</div>";h+="<div class=ml-gap></div>";h+="<div class=ml-section-header style=background:#C00000>"+"✘  DO NOT CALL ("+dnc.length+" parcels)</div>";h+=_colHdr();dnc.forEach(function(p){h+=_row(p,"dnc-row");});if(!dnc.length)h+="<div class=ml-none>None</div>";document.getElementById("table-body").innerHTML=h;}function showTab(tab){document.getElementById("map").style.display=tab==="map"?"block":"none";document.getElementById("table-view").style.display=tab==="table"?"block":"none";if(tab==="map"){setTimeout(function(){map.invalidateSize();},100);}document.querySelectorAll(".tab-btn").forEach(function(b,i){b.classList.toggle("active",(tab==="map"&&i===0)||(tab==="table"&&i===1));});if(tab==="table"&&!window._tableBuilt){buildTable();window._tableBuilt=true;}}var legend=document.getElementById('legend');var dragging=false,ox=0,oy=0;legend.addEventListener('mousedown',function(e){if(e.target.id==='legend-close')return;dragging=true;ox=e.clientX-legend.getBoundingClientRect().left;oy=e.clientY-legend.getBoundingClientRect().top;legend.style.right='auto';legend.style.bottom='auto';e.preventDefault();});document.addEventListener('mousemove',function(e){if(!dragging)return;legend.style.left=(e.clientX-ox)+'px';legend.style.top=(e.clientY-oy)+'px';});document.addEventListener('mouseup',function(){dragging=false;});function shareTerritory(){var s=encodeURIComponent('R_271 Territory Map');var b=encodeURIComponent('Hello,\n\nHere is the link for the R_271 territory:\n\nhttps://spleaders.github.io/Territory-Maps-and-MailLists/R_271/\n\nThis link opens a page with two buttons:\n- Open Interactive Map\n- Open Mailing List\n\nWorks on any device or browser - no software needed.\n\nThank you!');window.location.href='mailto:?subject='+s+'&body='+b;}function searchMapID(val){var clearBtn=document.getElementById('mapid-search-clear');if(!val){clearBtn.style.display='none';return;}clearBtn.style.display='inline';var id=parseInt(val);if(isNaN(id))return;var found=null;parcelsData.features.forEach(function(f){if(f.properties.mapid===id){found=f;}});if(!found)return;var coords=found.geometry.coordinates;function getCenter(c){var pts=[];function collect(x){if(typeof x[0]==='number')pts.push(x);else x.forEach(collect);}collect(c);var lat=pts.reduce(function(s,p){return s+p[1];},0)/pts.length;var lng=pts.reduce(function(s,p){return s+p[0];},0)/pts.length;return [lat,lng];}var center=getCenter(coords);map.setView(center,17);}function clearMapID(){document.getElementById('mapid-input').value='';document.getElementById('mapid-search-clear').style.display='none';}function printMap(){var c=map.getCenter();var z=map.getZoom();var el=document.getElementById('map');document.getElementById('share-btn').style.display='none';document.getElementById('print-btn').style.display='none';document.getElementById('btn-bar').style.display='none';el.style.position='fixed';el.style.top='0';el.style.left='0';el.style.width='100vw';el.style.height='100vh';el.style.zIndex='9999';map.invalidateSize();map.setView(c,z);setTimeout(function(){map.setView(c,z);requestAnimationFrame(function(){requestAnimationFrame(function(){window.print();});});},800);}window.onafterprint=function(){var el=document.getElementById('map');el.style.position='';el.style.top='';el.style.left='';el.style.width='';el.style.height='';el.style.zIndex='';map.invalidateSize();document.getElementById('share-btn').style.display='';document.getElementById('print-btn').style.display='';document.getElementById('btn-bar').style.display='';};</script></body>
+<script>
+var _allRows=[];
+function _colHdr(){return '<div class=ml-col-header><span>MapID</span><span>Owner 1</span><span>Owner 2</span><span>Site Address</span><span>St</span><span>Reason/Notes</span><span>Mailing Address</span></div>';}
+function _row(p,cls){
+var sa=(p.site||'')+(p.site_city?', '+p.site_city:'');
+var ma=(p.mail||'')+(p.city?', '+p.city:'')+(p.state?' '+p.state:'')+(p.zip?' '+p.zip:'');
+return '<div class="ml-row '+cls+'">'
++'<span>'+p.mapid+'</span>'
++'<span>'+(p.owner||'')+'</span>'
++'<span>'+(p.owner2||'')+'</span>'
++'<span>'+sa+'</span>'
++'<span>'+(p.site_state||'')+'</span>'
++'<span>'+(p.notes||'')+'</span>'
++'<span>'+ma+'</span>'
++'</div>';}
+function buildTable(){_allRows=tableData.slice();renderTable(_allRows);}
+function filterTable(){
+var q=document.getElementById('search-box').value.toLowerCase();
+renderTable(_allRows.filter(function(p){
+return [p.mapid,p.owner,p.owner2,p.site,p.site_city,p.mail,p.city,p.notes].join(' ').toLowerCase().indexOf(q)>=0;}));}
+function renderTable(rows){
+var conf=[],res=[],dnc=[];
+rows.forEach(function(p){
+if(p.dnc==='YES'){dnc.push(p);}
+else if(p.occupied==='Yes'&&p.confidence==='High'&&p.research!=='Yes'){conf.push(p);}
+else{res.push(p);}});
+var h='';
+h+='<div class=ml-hdr style="background:#375623">✔ CONFIDENT RESIDENTS ('+conf.length+' parcels) — Ready to write letters</div>';
+h+=_colHdr();
+conf.forEach(function(p,i){h+=_row(p,i%2===0?'ml-even-g':'ml-odd');});
+if(!conf.length)h+='<div class=ml-none>None</div>';
+h+='<div class=ml-gap></div>';
+h+='<div class=ml-hdr style="background:#7F6000">? NEEDS RESEARCH ('+res.length+' parcels) — Verify before writing</div>';
+h+=_colHdr();
+res.forEach(function(p,i){h+=_row(p,i%2===0?'ml-even-y':'ml-odd');});
+if(!res.length)h+='<div class=ml-none>None</div>';
+h+='<div class=ml-gap></div>';
+h+='<div class=ml-hdr style="background:#C00000">✘ DO NOT CALL ('+dnc.length+' parcels)</div>';
+h+=_colHdr();
+dnc.forEach(function(p){h+=_row(p,'ml-dnc');});
+if(!dnc.length)h+='<div class=ml-none>None</div>';
+document.getElementById('table-body').innerHTML=h;}
+function showTab(tab){
+document.getElementById('map').style.display=tab==='map'?'block':'none';
+document.getElementById('table-view').style.display=tab==='table'?'block':'none';
+if(tab==='map'){setTimeout(function(){map.invalidateSize();},100);}
+document.querySelectorAll('.tab-btn').forEach(function(b,i){
+b.classList.toggle('active',(tab==='map'&&i===0)||(tab==='table'&&i===1));});
+if(tab==='table'&&!window._tableBuilt){buildTable();window._tableBuilt=true;}}
+var legend=document.getElementById('legend');var dragging=false,ox=0,oy=0;legend.addEventListener('mousedown',function(e){if(e.target.id==='legend-close')return;dragging=true;ox=e.clientX-legend.getBoundingClientRect().left;oy=e.clientY-legend.getBoundingClientRect().top;legend.style.right='auto';legend.style.bottom='auto';e.preventDefault();});document.addEventListener('mousemove',function(e){if(!dragging)return;legend.style.left=(e.clientX-ox)+'px';legend.style.top=(e.clientY-oy)+'px';});document.addEventListener('mouseup',function(){dragging=false;});function shareTerritory(){var s=encodeURIComponent('R_271 Territory Map');var b=encodeURIComponent('Hello,\n\nHere is the link for the R_271 territory:\n\nhttps://spleaders.github.io/Territory-Maps-and-MailLists/R_271/\n\nThis link opens a page with two buttons:\n- Open Interactive Map\n- Open Mailing List\n\nWorks on any device or browser - no software needed.\n\nThank you!');window.location.href='mailto:?subject='+s+'&body='+b;}function searchMapID(val){var clearBtn=document.getElementById('mapid-search-clear');if(!val){clearBtn.style.display='none';return;}clearBtn.style.display='inline';var id=parseInt(val);if(isNaN(id))return;var found=null;parcelsData.features.forEach(function(f){if(f.properties.mapid===id){found=f;}});if(!found)return;var coords=found.geometry.coordinates;function getCenter(c){var pts=[];function collect(x){if(typeof x[0]==='number')pts.push(x);else x.forEach(collect);}collect(c);var lat=pts.reduce(function(s,p){return s+p[1];},0)/pts.length;var lng=pts.reduce(function(s,p){return s+p[0];},0)/pts.length;return [lat,lng];}var center=getCenter(coords);map.setView(center,17);}function clearMapID(){document.getElementById('mapid-input').value='';document.getElementById('mapid-search-clear').style.display='none';}function printMap(){var c=map.getCenter();var z=map.getZoom();var el=document.getElementById('map');document.getElementById('share-btn').style.display='none';document.getElementById('print-btn').style.display='none';document.getElementById('btn-bar').style.display='none';el.style.position='fixed';el.style.top='0';el.style.left='0';el.style.width='100vw';el.style.height='100vh';el.style.zIndex='9999';map.invalidateSize();map.setView(c,z);setTimeout(function(){map.setView(c,z);requestAnimationFrame(function(){requestAnimationFrame(function(){window.print();});});},800);}window.onafterprint=function(){var el=document.getElementById('map');el.style.position='';el.style.top='';el.style.left='';el.style.width='';el.style.height='';el.style.zIndex='';map.invalidateSize();document.getElementById('share-btn').style.display='';document.getElementById('print-btn').style.display='';document.getElementById('btn-bar').style.display='';};</script></body>
 </html>

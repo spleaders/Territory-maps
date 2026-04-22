@@ -11,14 +11,14 @@
 body { font-family: Arial, sans-serif; background: #f0f0f0; }
 #header {
   background: #1A3A6B; color: white;
-  padding: 10px 16px; display: flex;
+  padding: 8px 16px; display: flex;
   align-items: center; justify-content: space-between;
-  flex-wrap: wrap; gap: 4px; height: 50px; box-sizing: border-box;
+  flex-wrap: wrap; gap: 4px; min-height: 56px; box-sizing: border-box;
 }
 #header h1 { font-size: 17px; font-weight: bold; margin: 0; line-height: 1.2; }
 #header .subtitle { font-size: 10px; opacity: 0.75; margin-top: 1px; }
 #header .stats { font-size: 12px; opacity: 0.9; }
-#map { height: calc(100vh - 90px); width: 100%; display: block; }
+#map { height: calc(100vh - 96px); width: 100%; display: block; }
 .leaflet-popup-content-wrapper {
   border-radius: 12px;
   box-shadow: 0 6px 24px rgba(0,0,0,0.3);
@@ -63,8 +63,12 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
 #legend-close:hover { color: #333; }
 .legend-row { display: flex; align-items: center; margin-bottom: 10px; }
 .legend-swatch {
-  width: 21px; height: 21px; border-radius: 4px;
-  margin-right: 12px; flex-shrink: 0; border: 1px solid rgba(0,0,0,0.2);
+  width: 20px; height: 20px; border-radius: 4px;
+  margin-right: 12px; flex-shrink: 0;
+  border: 1px solid rgba(0,0,0,0.25);
+  display: inline-block !important;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
 }
 #notes-bar {
   display: none; position: absolute; top: 58px; left: 10px;
@@ -150,25 +154,20 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
 .badge-vac2  { background: #808080; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
 .badge-dnc2  { background: #cc0000; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
 .badge-res2  { background: #E65100; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
-#share-btn {
-  position: absolute; top: 10px; right: 10px; z-index: 1000;
+#btn-bar {
+  position: absolute; top: 100px; left: 50%; transform: translateX(-50%);
+  z-index: 1000; display: flex; gap: 8px; align-items: center;
+}
+#share-btn, #print-btn {
   background: rgba(255,255,255,0.95); border: 1px solid #ccc;
-  border-radius: 8px; padding: 7px 14px;
+  border-radius: 8px; padding: 6px 14px;
   font-size: 13px; font-weight: bold; color: #333;
   cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
-#share-btn:hover { background: #f0f0f0; }
-#print-btn {
-  position: absolute; top: 10px; right: 160px; z-index: 1000;
-  background: rgba(255,255,255,0.95); border: 1px solid #ccc;
-  border-radius: 8px; padding: 7px 14px;
-  font-size: 13px; font-weight: bold; color: #333;
-  cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-}
-#print-btn:hover { background: #f0f0f0; }
+#share-btn:hover, #print-btn:hover { background: #f0f0f0; }
 @media print {
   @page { margin: 0; size: auto; }
-  #header, #tab-bar, #share-btn, #print-btn, #mapid-search,
+  #header, #tab-bar, #btn-bar, #share-btn, #print-btn, #mapid-search,
   #notes-bar, #table-view,
   .leaflet-control-container { display: none !important; }
   html, body { margin: 0 !important; padding: 0 !important;
@@ -177,10 +176,15 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
           top: 0 !important; left: 0 !important;
           width: 100vw !important; height: 100vh !important;
           z-index: 1 !important; }
-  #legend { z-index: 2 !important; }
+  #legend { z-index: 2 !important;
+             max-width: 200px !important;
+             right: 10px !important;
+             bottom: 10px !important;
+             left: auto !important;
+             top: auto !important;
+             font-size: 13px !important; }
 }
 #mapid-search {
-  position: absolute; top: 10px; left: 10px; z-index: 1000;
   background: rgba(255,255,255,0.97); border: 1px solid #ccc;
   border-radius: 8px; padding: 6px 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
@@ -204,7 +208,7 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
 <div id="header">
   <div>
     <h1>R_271 Territory</h1>
-    <div class="subtitle">R_271_20260421_1755.xlsx</div>
+    <div class="subtitle">R_271_20260421_2115.xlsx</div>
   </div>
   <div class="stats">
     186 parcels &nbsp;&nbsp;
@@ -252,6 +256,7 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
     <tbody id="table-body"></tbody>
   </table>
 </div>
+<div id="btn-bar">
 <button id="share-btn" onclick="shareTerritory()">&#x2709; Share Territory</button>
 <button id="print-btn" onclick="printMap()">&#x1F5A8; Print Map</button>
 <div id="mapid-search">
@@ -260,6 +265,7 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
     oninput="searchMapID(this.value)"
     onkeydown="if(event.key==='Escape'){clearMapID();}" />
   <span id="mapid-search-clear" onclick="clearMapID()">&#x2715;</span>
+</div>
 </div>
 <div id="legend">
   <h4>Legend <span id="legend-close" onclick="document.getElementById('legend').style.display='none'">&#x2715;</span></h4>

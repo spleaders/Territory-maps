@@ -208,7 +208,7 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
 <div id="header">
   <div>
     <h1>R_271 Territory</h1>
-    <div class="subtitle">R_271_20260421_2240.xlsx</div>
+    <div class="subtitle">R_271_20260421_2244.xlsx</div>
   </div>
   <div class="stats">
     186 parcels &nbsp;&nbsp;
@@ -395,6 +395,12 @@ function getOpacity(feature) {
   if (area < 0.0002)   return 0.18;
   return 0.12;
 }
+// Store per-parcel area for label sizing
+var parcelAreas = {};
+parcelsData.features.forEach(function(f) {
+  parcelAreas[f.properties.mapid] = getParcelArea(f);
+});
+
 L.geoJSON(parcelsData, {
   style: function(feature) {
     var p = feature.properties;
@@ -408,10 +414,15 @@ L.geoJSON(parcelsData, {
   onEachFeature: function(feature, layer) {
     var p = feature.properties;
     layer.bindPopup(getPopup(p), {maxWidth: 300});
-    layer.bindTooltip(String(p.mapid), {
+    var area = getParcelArea(feature);
+    // Store area on tooltip element for zoom-aware sizing
+    var tt = layer.bindTooltip(String(p.mapid), {
       permanent: true, direction: 'center',
       className: 'mapid-label',
       offset: [0, 0]
+    });
+    layer.on('tooltipopen', function(e) {
+      e.tooltip.getElement().setAttribute('data-area', area);
     });
   }
 }).addTo(map);
@@ -420,17 +431,26 @@ if (!boundaryData) {
   map.setView([43.77, -88.43], 14);
 }
 
-// Scale MapID labels with zoom level
+// Scale MapID labels by zoom level AND parcel area
 function updateLabelSizes() {
   var z = map.getZoom();
-  var size;
-  if      (z <= 13) size = '11px';
-  else if (z <= 14) size = '15px';
-  else if (z <= 15) size = '19px';
-  else if (z <= 16) size = '24px';
-  else              size = '30px';
+  // Base size from zoom
+  var baseSize;
+  if      (z <= 13) baseSize = 11;
+  else if (z <= 14) baseSize = 15;
+  else if (z <= 15) baseSize = 19;
+  else if (z <= 16) baseSize = 24;
+  else              baseSize = 30;
   document.querySelectorAll('.mapid-label').forEach(function(el) {
-    el.style.fontSize = size;
+    var area = parseFloat(el.getAttribute('data-area') || 0);
+    var scale = 1.0;
+    // Shrink labels for small parcels
+    if      (area < 0.000003) scale = 0.45;
+    else if (area < 0.000008) scale = 0.60;
+    else if (area < 0.00002)  scale = 0.75;
+    else if (area < 0.00006)  scale = 0.88;
+    var finalSize = Math.max(7, Math.round(baseSize * scale));
+    el.style.fontSize = finalSize + 'px';
   });
 }
 map.on('zoomend', updateLabelSizes);

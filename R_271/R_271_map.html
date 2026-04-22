@@ -208,7 +208,7 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
 <div id="header">
   <div>
     <h1>R_271 Territory</h1>
-    <div class="subtitle">R_271_20260421_2238.xlsx</div>
+    <div class="subtitle">R_271_20260421_2240.xlsx</div>
   </div>
   <div class="stats">
     186 parcels &nbsp;&nbsp;
@@ -339,10 +339,11 @@ if (boundaryData) {
   L.marker(center, {
     icon: L.divIcon({
       className: '',
-      html: '<div style="font-size:36px;font-weight:bold;'
-           +'color:#1A3A6B;opacity:0.45;'
+      html: '<div style="font-size:52px;font-weight:900;'
+           +'color:#1A3A6B;opacity:0.55;'
            +'white-space:nowrap;pointer-events:none;'
-           +'text-shadow:1px 1px 3px rgba(255,255,255,0.8);'
+           +'position:relative;z-index:9999;'
+           +'text-shadow:2px 2px 0px white,-2px -2px 0px white,2px -2px 0px white,-2px 2px 0px white;'
            +'transform:translate(-50%,-50%);">R_271</div>',
       iconSize: [0, 0],
       iconAnchor: [0, 0]

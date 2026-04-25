@@ -11,13 +11,14 @@
 body { font-family: Arial, sans-serif; background: #f0f0f0; }
 #header {
   background: #4CAF50; color: white;
-  padding: 10px 16px; display: flex;
+  padding: 8px 16px; display: flex;
   align-items: center; justify-content: space-between;
-  flex-wrap: wrap; gap: 4px; height: 50px; box-sizing: border-box;
+  flex-wrap: wrap; gap: 4px; min-height: 56px; box-sizing: border-box;
 }
-#header h1 { font-size: 17px; font-weight: bold; }
+#header h1 { font-size: 17px; font-weight: bold; margin: 0; line-height: 1.2; }
+#header .subtitle { font-size: 10px; opacity: 0.75; margin-top: 1px; }
 #header .stats { font-size: 12px; opacity: 0.9; }
-#map { height: calc(100vh - 90px); width: 100%; display: block; }
+#map { height: calc(100vh - 96px); width: 100%; display: block; }
 .leaflet-popup-content-wrapper {
   border-radius: 12px;
   box-shadow: 0 6px 24px rgba(0,0,0,0.3);
@@ -62,8 +63,12 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
 #legend-close:hover { color: #333; }
 .legend-row { display: flex; align-items: center; margin-bottom: 10px; }
 .legend-swatch {
-  width: 21px; height: 21px; border-radius: 4px;
-  margin-right: 12px; flex-shrink: 0; border: 1px solid rgba(0,0,0,0.2);
+  width: 20px; height: 20px; border-radius: 4px;
+  margin-right: 12px; flex-shrink: 0;
+  border: 1px solid rgba(0,0,0,0.25);
+  display: inline-block !important;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
 }
 #notes-bar {
   display: none; position: absolute; top: 58px; left: 10px;
@@ -149,16 +154,37 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
 .badge-vac2  { background: #808080; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
 .badge-dnc2  { background: #cc0000; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
 .badge-res2  { background: #E65100; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
-#share-btn {
-  position: absolute; top: 10px; right: 10px; z-index: 1000;
+#btn-bar {
+  position: absolute; top: 100px; left: 50%; transform: translateX(-50%);
+  z-index: 1000; display: flex; gap: 8px; align-items: center;
+}
+#share-btn, #print-btn {
   background: rgba(255,255,255,0.95); border: 1px solid #ccc;
-  border-radius: 8px; padding: 7px 14px;
+  border-radius: 8px; padding: 6px 14px;
   font-size: 13px; font-weight: bold; color: #333;
   cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
-#share-btn:hover { background: #f0f0f0; }
+#share-btn:hover, #print-btn:hover { background: #f0f0f0; }
+@media print {
+  @page { margin: 0; size: auto; }
+  #header, #tab-bar, #btn-bar, #share-btn, #print-btn, #mapid-search,
+  #notes-bar, #table-view,
+  .leaflet-control-container { display: none !important; }
+  html, body { margin: 0 !important; padding: 0 !important;
+                overflow: hidden !important; }
+  #map { position: fixed !important;
+          top: 0 !important; left: 0 !important;
+          width: 100vw !important; height: 100vh !important;
+          z-index: 1 !important; }
+  #legend { z-index: 2 !important;
+             max-width: 200px !important;
+             right: 10px !important;
+             bottom: 10px !important;
+             left: auto !important;
+             top: auto !important;
+             font-size: 13px !important; }
+}
 #mapid-search {
-  position: absolute; top: 10px; left: 10px; z-index: 1000;
   background: rgba(255,255,255,0.97); border: 1px solid #ccc;
   border-radius: 8px; padding: 6px 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
@@ -176,11 +202,30 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
   display: none;
 }
 #mapid-search-clear:hover { color: #333; }
+.ml-hdr{padding:10px 16px;font-weight:bold;font-size:13px;color:white;letter-spacing:0.5px;}
+.ml-col-header{display:grid;grid-template-columns:60px 200px 200px 240px 30px 200px 240px;
+  background:#4472C4;color:white;font-size:12px;font-weight:bold;}
+.ml-col-header span{padding:6px 8px;white-space:nowrap;overflow:hidden;
+  border-right:1px solid rgba(255,255,255,0.2);}
+.ml-row{display:grid;grid-template-columns:60px 200px 200px 240px 30px 200px 240px;
+  font-size:12px;border-bottom:1px solid #eee;}
+.ml-row span{padding:5px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ml-row:hover span{white-space:normal;overflow:visible;background:#fffde7;
+  position:relative;z-index:5;}
+.ml-even-g{background:#E2EFDA;}
+.ml-odd{background:#FFFFFF;}
+.ml-even-y{background:#FFF2CC;}
+.ml-dnc{background:#FFB3B3;}
+.ml-gap{height:12px;background:#e8e8e8;}
+.ml-none{padding:8px 16px;color:#888;font-size:12px;font-style:italic;}
 </style>
 </head>
 <body>
 <div id="header">
-  <h1> Apartment_429 Territory</h1>
+  <div>
+    <h1>Apartment_429 Territory</h1>
+    <div class="subtitle">Apartment_429_20260415_1429.xlsx</div>
+  </div>
   <div class="stats">
     2 parcels &nbsp;&nbsp;
     0 owner occupied &nbsp;&nbsp;
@@ -196,38 +241,15 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
 </div>
 <div id="map"></div>
 <div id="table-view">
-  <input type="text" id="search-box" placeholder="Search by name, address, MapID..." oninput="filterTable()">
-  <button id="hide-unknown-btn" onclick="toggleUnknown()" style="margin-left:10px;padding:8px 14px;border:1px solid #ccc;border-radius:6px;cursor:pointer;font-size:13px;background:white;">Hide Unknown</button>
-  <table id="data-table" style="width:100%;border-collapse:collapse;font-size:13px;background:white;table-layout:auto;">
-    <thead>
-      <tr>
-        <th onclick="sortTable(0)"  style="width:50px">MapID</th>
-        <th onclick="sortTable(1)"  style="width:200px">Owner 1</th>
-        <th onclick="sortTable(2)"  style="width:200px">Owner 2</th>
-        <th onclick="sortTable(3)"  style="width:180px">Site Address</th>
-        <th onclick="sortTable(19)" style="width:130px">Site City</th>
-        <th onclick="sortTable(20)" style="width:40px">St</th>
-        <th onclick="sortTable(21)" style="width:70px">Site ZIP</th>
-        <th onclick="sortTable(4)"  style="width:220px">Mailing Address</th>
-        <th onclick="sortTable(5)"  style="width:130px">Mail City</th>
-        <th onclick="sortTable(6)"  style="width:40px">St</th>
-        <th onclick="sortTable(7)"  style="width:70px">Mail ZIP</th>
-        <th onclick="sortTable(8)"  style="width:120px">Bldg Type</th>
-        <th onclick="sortTable(9)"  style="width:110px">Owner Type</th>
-        <th onclick="sortTable(10)" style="width:90px">Occupied</th>
-        <th onclick="sortTable(11)" style="width:90px">Confidence</th>
-        <th onclick="sortTable(12)" style="width:160px">Address As</th>
-        <th onclick="sortTable(13)" style="width:180px">Salutation</th>
-        <th onclick="sortTable(14)" style="width:50px">DNC</th>
-        <th onclick="sortTable(15)" style="width:80px">Research</th>
-        <th onclick="sortTable(16)" style="width:200px">Notes</th>
-        <th onclick="sortTable(17)" style="width:90px">Sheet</th>
-      </tr>
-    </thead>
-    <tbody id="table-body"></tbody>
-  </table>
+  <div style="padding:10px 16px 6px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+    <input type="text" id="search-box" placeholder="Search by name, address, MapID..." oninput="filterTable()"
+      style="padding:7px 12px;border:1px solid #ccc;border-radius:6px;font-size:13px;width:300px;">
+  </div>
+  <div id="table-body"></div>
 </div>
+<div id="btn-bar">
 <button id="share-btn" onclick="shareTerritory()">&#x2709; Share Territory</button>
+<button id="print-btn" onclick="printMap()">&#x1F5A8; Print Map</button>
 <div id="mapid-search">
   <label>&#x1F50D; MapID</label>
   <input type="number" id="mapid-input" placeholder="e.g. 42" min="1"
@@ -235,10 +257,14 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
     onkeydown="if(event.key==='Escape'){clearMapID();}" />
   <span id="mapid-search-clear" onclick="clearMapID()">&#x2715;</span>
 </div>
+</div>
 <div id="legend">
   <h4>Legend <span id="legend-close" onclick="document.getElementById('legend').style.display='none'">&#x2715;</span></h4>
   <div class="legend-row">
-    <div class="legend-swatch" style="background:#4CAF50"></div>Residential
+    <div class="legend-swatch" style="background:#2E5496"></div>Owner Occupied
+  </div>
+  <div class="legend-row">
+    <div class="legend-swatch" style="background:#5B9BD5"></div>Needs Research
   </div>
   <div class="legend-row">
     <div class="legend-swatch" style="background:#548235"></div>Institution
@@ -250,7 +276,7 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
     <div class="legend-swatch" style="background:#808080"></div>Vacant
   </div>
   <div class="legend-row">
-    <div class="legend-swatch" style="background:#FF0000"></div>Do Not Contact
+    <div class="legend-swatch" style="background:#CC0000"></div>Do Not Contact
   </div>
 </div>
 <script>
@@ -263,7 +289,7 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r
 var boundaryData = {"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"coordinates": [[[-88.47596347331995, 43.79076508514581], [-88.47485303878778, 43.79076895756769], [-88.47484767436976, 43.789324526808144], [-88.47652673721313, 43.78932839932334], [-88.4768003225326, 43.78942133961271], [-88.47678959369654, 43.78972339455493], [-88.47596347331995, 43.7897272670443], [-88.47596347331995, 43.79076508514581], [-88.47596347331995, 43.79076508514581], [-88.47596347331995, 43.79076508514581]]], "type": "Polygon"}, "properties": {}}]};
 var buildingsData = {"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-88.475224, 43.789444], [-88.475712, 43.789447], [-88.475711, 43.789616], [-88.475223, 43.789614], [-88.475224, 43.789444]]]}, "properties": {"mapid": 2, "subid": "2a", "site": "755 SECURITY DR, Fond du Lac WI 54935", "owner": "COUNTRYSIDE VILLAS LLC", "salute": "Dear Resident", "sheet": "Multi_Occupant"}}, {"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-88.475331, 43.789805], [-88.475334, 43.790158], [-88.475096, 43.790159], [-88.475093, 43.789807], [-88.475331, 43.789805]]]}, "properties": {"mapid": 2, "subid": "2b", "site": "759 SECURITY DR, Fond du Lac WI 54935", "owner": "COUNTRYSIDE VILLAS LLC", "salute": "Dear Resident", "sheet": "Multi_Occupant"}}, {"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-88.475449, 43.789805], [-88.475691, 43.789805], [-88.47569, 43.790159], [-88.475449, 43.790159], [-88.475449, 43.789805]]]}, "properties": {"mapid": 2, "subid": "2e", "site": "767 SECURITY DR, Fond du Lac WI 54935", "owner": "COUNTRYSIDE VILLAS LLC", "salute": "Dear Resident", "sheet": "Multi_Occupant"}}, {"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-88.475694, 43.790331], [-88.475698, 43.790682], [-88.475454, 43.790684], [-88.47545, 43.790333], [-88.475694, 43.790331]]]}, "properties": {"mapid": 2, "subid": "2d", "site": "765 SECURITY DR, Fond du Lac WI 54935", "owner": "COUNTRYSIDE VILLAS LLC", "salute": "Dear Resident", "sheet": "Multi_Occupant"}}, {"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-88.475094, 43.790335], [-88.475341, 43.790334], [-88.475343, 43.790685], [-88.475096, 43.790685], [-88.475094, 43.790335]]]}, "properties": {"mapid": 2, "subid": "2c", "site": "761 SECURITY DR, Fond du Lac WI 54935", "owner": "COUNTRYSIDE VILLAS LLC", "salute": "Dear Resident", "sheet": "Multi_Occupant"}}, {"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-88.476742, 43.789475], [-88.476722, 43.789638], [-88.476238, 43.789606], [-88.476258, 43.789443], [-88.476742, 43.789475]]]}, "properties": {"mapid": 2, "subid": "2f", "site": "791 SECURITY DR, Fond du Lac WI 54935", "owner": "COUNTRYSIDE VILLAS LLC", "salute": "Dear Resident", "sheet": "Multi_Occupant"}}]};
 var isApartment = true;
-var tableData = [{"mapid": "(No data)", "owner": "", "owner2": "", "site": "", "site_city": "", "site_state": "", "site_zip": "", "mail": "", "city": "", "state": "", "zip": "", "btype": "", "ownertype": "", "occupied": "", "confidence": "", "addressas": "", "salute": "", "dnc": "", "research": "", "notes": "", "sheet": "Duplicates"}, {"mapid": "1", "owner": "COUNTRYSIDE VILLAS III LLC", "owner2": "", "site": "406 N PETERS AVENUE", "site_city": "", "site_state": "", "site_zip": "", "mail": "% FOCUS PROPERTY MANAGEMENT", "city": "KAUKAUNA", "state": "WI", "zip": "54130", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Countryside Villas Iii Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant"}, {"mapid": "2a", "owner": "COUNTRYSIDE VILLAS LLC", "owner2": "", "site": "755 SECURITY DR", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "% MIDWEST REALTY MGMT INC", "city": "OSHKOSH", "state": "WI", "zip": "54904", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Countryside Villas Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant"}, {"mapid": "2b", "owner": "COUNTRYSIDE VILLAS LLC", "owner2": "", "site": "759 SECURITY DR", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "% MIDWEST REALTY MGMT INC", "city": "OSHKOSH", "state": "WI", "zip": "54904", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Countryside Villas Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant"}, {"mapid": "2c", "owner": "COUNTRYSIDE VILLAS LLC", "owner2": "", "site": "761 SECURITY DR", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "% MIDWEST REALTY MGMT INC", "city": "OSHKOSH", "state": "WI", "zip": "54904", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Countryside Villas Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant"}, {"mapid": "2d", "owner": "COUNTRYSIDE VILLAS LLC", "owner2": "", "site": "765 SECURITY DR", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "% MIDWEST REALTY MGMT INC", "city": "OSHKOSH", "state": "WI", "zip": "54904", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Countryside Villas Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant"}, {"mapid": "2e", "owner": "COUNTRYSIDE VILLAS LLC", "owner2": "", "site": "767 SECURITY DR", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "% MIDWEST REALTY MGMT INC", "city": "OSHKOSH", "state": "WI", "zip": "54904", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Countryside Villas Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant"}, {"mapid": "2f", "owner": "COUNTRYSIDE VILLAS LLC", "owner2": "", "site": "791 SECURITY DR", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "% MIDWEST REALTY MGMT INC", "city": "OSHKOSH", "state": "WI", "zip": "54904", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Countryside Villas Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant"}];
+var tableData = [{"mapid": "(No data)", "owner": "", "owner2": "", "site": "", "site_city": "", "site_state": "", "site_zip": "", "mail": "", "city": "", "state": "", "zip": "", "btype": "", "ownertype": "", "occupied": "", "confidence": "", "addressas": "", "salute": "", "dnc": "", "research": "", "notes": "", "sheet": "Duplicates"}, {"mapid": "1", "owner": "COUNTRYSIDE VILLAS III LLC", "owner2": "", "site": "406 N PETERS AVENUE", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "% FOCUS PROPERTY MANAGEMENT", "city": "Kaukauna", "state": "WI", "zip": "54130", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Countryside Villas Iii Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant"}, {"mapid": "2a", "owner": "COUNTRYSIDE VILLAS LLC", "owner2": "", "site": "755 SECURITY DR", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "% MIDWEST REALTY MGMT INC", "city": "Oshkosh", "state": "WI", "zip": "54904", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Countryside Villas Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant"}, {"mapid": "2b", "owner": "COUNTRYSIDE VILLAS LLC", "owner2": "", "site": "759 SECURITY DR", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "% MIDWEST REALTY MGMT INC", "city": "Oshkosh", "state": "WI", "zip": "54904", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Countryside Villas Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant"}, {"mapid": "2c", "owner": "COUNTRYSIDE VILLAS LLC", "owner2": "", "site": "761 SECURITY DR", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "% MIDWEST REALTY MGMT INC", "city": "Oshkosh", "state": "WI", "zip": "54904", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Countryside Villas Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant"}, {"mapid": "2d", "owner": "COUNTRYSIDE VILLAS LLC", "owner2": "", "site": "765 SECURITY DR", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "% MIDWEST REALTY MGMT INC", "city": "Oshkosh", "state": "WI", "zip": "54904", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Countryside Villas Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant"}, {"mapid": "2e", "owner": "COUNTRYSIDE VILLAS LLC", "owner2": "", "site": "767 SECURITY DR", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "% MIDWEST REALTY MGMT INC", "city": "Oshkosh", "state": "WI", "zip": "54904", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Countryside Villas Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant"}, {"mapid": "2f", "owner": "COUNTRYSIDE VILLAS LLC", "owner2": "", "site": "791 SECURITY DR", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "% MIDWEST REALTY MGMT INC", "city": "Oshkosh", "state": "WI", "zip": "54904", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Countryside Villas Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant"}];
 
 if (buildingsData) {
   L.geoJSON(buildingsData, {
@@ -276,6 +302,14 @@ if (buildingsData) {
     interactive: isApartment,
     onEachFeature: isApartment ? function(feature, layer) {
       var p = feature.properties;
+      // Permanent sub-ID label on each building footprint
+      var label = p.subid ? p.subid.toUpperCase() : (p.mapid ? String(p.mapid) : '');
+      if (label) {
+        layer.bindTooltip(label, {
+          permanent: true, direction: 'center',
+          className: 'mapid-label', offset: [0, 0]
+        });
+      }
       if (p.site && p.site !== '') {
         var subLabel = p.subid ? p.subid.toUpperCase() : ('Parcel #' + p.mapid);
         var saluteHtml = p.salute && p.salute !== 'nan' && p.salute !== ''
@@ -301,9 +335,26 @@ if (boundaryData) {
     }
   }).addTo(map);
   map.fitBounds(boundary.getBounds(), {padding: [30, 30]});
+  // Territory name label — centered on boundary, semi-transparent
+  var bounds = boundary.getBounds();
+  var center = bounds.getCenter();
+  L.marker(center, {
+    icon: L.divIcon({
+      className: '',
+      html: '<div style="font-size:52px;font-weight:900;'
+           +'color:#1A3A6B;opacity:0.55;'
+           +'white-space:nowrap;pointer-events:none;'
+           +'position:relative;z-index:9999;'
+           +'text-shadow:2px 2px 0px white,-2px -2px 0px white,2px -2px 0px white,-2px 2px 0px white;'
+           +'transform:translate(-50%,-50%);">Apartment_429</div>',
+      iconSize: [0, 0],
+      iconAnchor: [0, 0]
+    }),
+    interactive: false
+  }).addTo(map);
 }
 
-var parcelsData = {"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"coordinates": [[[[-88.47502998367389, 43.79076834050723], [-88.47501595249665, 43.78934864105974], [-88.47619011300905, 43.78934254490078], [-88.47632315036391, 43.789345050036424], [-88.47645566608503, 43.789353936667496], [-88.47658707753827, 43.78936916572197], [-88.47670359550901, 43.78938848025614], [-88.4768003225326, 43.78942133961271], [-88.47678959369654, 43.78972339455493], [-88.47596347331995, 43.7897272670443], [-88.47596347331995, 43.79076508514581], [-88.47502998367389, 43.79076834050723]]]], "type": "MultiPolygon"}, "properties": {"mapid": 2, "owner": "COUNTRYSIDE VILLAS LLC", "site": "2A: 755 SECURITY DR, Fond du Lac WI 54935 | 2B: 759 SECURITY DR, Fond du Lac WI 54935 | 2C: 761 SECURITY DR, Fond du Lac WI 54935 | 2D: 765 SECURITY DR, Fond du Lac WI 54935 | 2E: 767 SECURITY DR, Fond du Lac WI 54935 | 2F: 791 SECURITY DR, Fond du Lac WI 54935", "mail": "% MIDWEST REALTY MGMT INC", "sheet": "Multi_Occupant", "occupied": "No", "btype": "Apartment Building", "research": "Yes", "salute": "Dear Resident", "dnc": "", "fill": "#4CAF50", "owner2": "", "ownertype": "Business / Rental", "confidence": "High", "addressas": "Countryside Villas Llc", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "city": "OSHKOSH", "state": "WI", "zip": "54904"}}, {"type": "Feature", "geometry": {"coordinates": [[[[-88.47485303878778, 43.79076895756769], [-88.4748477671611, 43.78934951193666], [-88.47501595249665, 43.78934864105974], [-88.47502998367389, 43.79076834050723], [-88.47485303878778, 43.79076895756769]]]], "type": "MultiPolygon"}, "properties": {"mapid": 1, "owner": "COUNTRYSIDE VILLAS III LLC", "site": "406 N PETERS AVENUE", "mail": "% FOCUS PROPERTY MANAGEMENT", "sheet": "Multi_Occupant", "occupied": "No", "btype": "Apartment Building", "research": "Yes", "salute": "Dear Resident", "dnc": "", "fill": "#4CAF50", "owner2": "", "ownertype": "Business / Rental", "confidence": "High", "addressas": "Countryside Villas Iii Llc", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "city": "KAUKAUNA", "state": "WI", "zip": "54130"}}]};
+var parcelsData = {"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"coordinates": [[[[-88.47502998367389, 43.79076834050723], [-88.47501595249665, 43.78934864105974], [-88.47619011300905, 43.78934254490078], [-88.47632315036391, 43.789345050036424], [-88.47645566608503, 43.789353936667496], [-88.47658707753827, 43.78936916572197], [-88.47670359550901, 43.78938848025614], [-88.4768003225326, 43.78942133961271], [-88.47678959369654, 43.78972339455493], [-88.47596347331995, 43.7897272670443], [-88.47596347331995, 43.79076508514581], [-88.47502998367389, 43.79076834050723]]]], "type": "MultiPolygon"}, "properties": {"mapid": 2, "owner": "COUNTRYSIDE VILLAS LLC", "site": "2A: 755 SECURITY DR, Fond du Lac WI 54935 | 2B: 759 SECURITY DR, Fond du Lac WI 54935 | 2C: 761 SECURITY DR, Fond du Lac WI 54935 | 2D: 765 SECURITY DR, Fond du Lac WI 54935 | 2E: 767 SECURITY DR, Fond du Lac WI 54935 | 2F: 791 SECURITY DR, Fond du Lac WI 54935", "mail": "% MIDWEST REALTY MGMT INC", "sheet": "Multi_Occupant", "occupied": "No", "btype": "Apartment Building", "research": "Yes", "salute": "Dear Resident", "dnc": "", "fill": "#2E5496", "owner2": "", "ownertype": "Business / Rental", "confidence": "High", "addressas": "Countryside Villas Llc", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "city": "Oshkosh", "state": "WI", "zip": "54904"}}, {"type": "Feature", "geometry": {"coordinates": [[[[-88.47485303878778, 43.79076895756769], [-88.4748477671611, 43.78934951193666], [-88.47501595249665, 43.78934864105974], [-88.47502998367389, 43.79076834050723], [-88.47485303878778, 43.79076895756769]]]], "type": "MultiPolygon"}, "properties": {"mapid": 1, "owner": "COUNTRYSIDE VILLAS III LLC", "site": "406 N PETERS AVENUE, Fond du Lac WI 54935", "mail": "% FOCUS PROPERTY MANAGEMENT", "sheet": "Multi_Occupant", "occupied": "No", "btype": "Apartment Building", "research": "Yes", "salute": "Dear Resident", "dnc": "", "fill": "#2E5496", "owner2": "", "ownertype": "Business / Rental", "confidence": "High", "addressas": "Countryside Villas Iii Llc", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "city": "Kaukauna", "state": "WI", "zip": "54130"}}]};
 
 function getPopup(p) {
   var badge = '';
@@ -346,6 +397,12 @@ function getOpacity(feature) {
   if (area < 0.0002)   return 0.18;
   return 0.12;
 }
+// Store per-parcel area for label sizing
+var parcelAreas = {};
+parcelsData.features.forEach(function(f) {
+  parcelAreas[f.properties.mapid] = getParcelArea(f);
+});
+
 L.geoJSON(parcelsData, {
   style: function(feature) {
     var p = feature.properties;
@@ -359,10 +416,15 @@ L.geoJSON(parcelsData, {
   onEachFeature: function(feature, layer) {
     var p = feature.properties;
     layer.bindPopup(getPopup(p), {maxWidth: 300});
-    layer.bindTooltip(String(p.mapid), {
+    var area = getParcelArea(feature);
+    // Store area on tooltip element for zoom-aware sizing
+    var tt = layer.bindTooltip(String(p.mapid), {
       permanent: true, direction: 'center',
       className: 'mapid-label',
       offset: [0, 0]
+    });
+    layer.on('tooltipopen', function(e) {
+      e.tooltip.getElement().setAttribute('data-area', area);
     });
   }
 }).addTo(map);
@@ -371,17 +433,26 @@ if (!boundaryData) {
   map.setView([43.77, -88.43], 14);
 }
 
-// Scale MapID labels with zoom level
+// Scale MapID labels by zoom level AND parcel area
 function updateLabelSizes() {
   var z = map.getZoom();
-  var size;
-  if      (z <= 13) size = '11px';
-  else if (z <= 14) size = '15px';
-  else if (z <= 15) size = '19px';
-  else if (z <= 16) size = '24px';
-  else              size = '30px';
+  // Base size from zoom
+  var baseSize;
+  if      (z <= 13) baseSize = 11;
+  else if (z <= 14) baseSize = 15;
+  else if (z <= 15) baseSize = 19;
+  else if (z <= 16) baseSize = 24;
+  else              baseSize = 30;
   document.querySelectorAll('.mapid-label').forEach(function(el) {
-    el.style.fontSize = size;
+    var area = parseFloat(el.getAttribute('data-area') || 0);
+    var scale = 1.0;
+    // Shrink labels for small parcels
+    if      (area < 0.000003) scale = 0.45;
+    else if (area < 0.000008) scale = 0.60;
+    else if (area < 0.00002)  scale = 0.75;
+    else if (area < 0.00006)  scale = 0.88;
+    var finalSize = Math.max(7, Math.round(baseSize * scale));
+    el.style.fontSize = finalSize + 'px';
   });
 }
 map.on('zoomend', updateLabelSizes);
@@ -396,5 +467,54 @@ setTimeout(updateLabelSizes, 500);
   pointer-events: none; transition: font-size 0.1s;
 }
 </style>
-<script>function getBadge(p){if(p.dnc==='YES')return '<span class=badge-dnc2>DNC</span>';if(p.sheet==='Institutions')return '<span class=badge-inst2>Institution</span>';if(p.sheet==='Vacant')return '<span class=badge-vac2>Vacant</span>';if(p.btype==='Commercial / Rental')return '<span class=badge-biz2>Business</span>';if(p.research==='Yes')return '<span class=badge-res2>Research</span>';return '<span class=badge-res>Residential</span>';}function showTab(tab){document.getElementById('map').style.display=tab==='map'?'block':'none';document.getElementById('table-view').style.display=tab==='table'?'block':'none';if(tab==='map'){setTimeout(function(){map.invalidateSize();},100);}document.querySelectorAll('.tab-btn').forEach(function(b,i){b.classList.toggle('active',(tab==='map'&&i===0)||(tab==='table'&&i===1));});if(tab==='table'&&!window._tableBuilt){buildTable();window._tableBuilt=true;}}var _sortDir={};function sortTable(col){if(!window._tableRows)return;var rows=window._tableRows.slice();var dir=_sortDir[col]=!_sortDir[col];rows.sort(function(a,b){var x=a[col],y=b[col];if(typeof x==='number')return dir?x-y:y-x;return dir?String(x).localeCompare(String(y)):String(y).localeCompare(String(x));});window._tableRows=rows;document.querySelectorAll('#data-table th').forEach(function(th,i){th.classList.remove('sort-asc','sort-desc');if(i===col)th.classList.add(dir?'sort-asc':'sort-desc');});renderTable(rows);}var _hideUnknown=false;function toggleUnknown(){_hideUnknown=!_hideUnknown;document.getElementById('hide-unknown-btn').style.background=_hideUnknown?'#e0e0e0':'white';filterTable();}function filterTable(){var q=document.getElementById('search-box').value.toLowerCase();if(!window._tableRows)return;var filtered=window._tableRows.filter(function(r){if(_hideUnknown&&r[1]==='Unknown Owner')return false;return r.join(' ').toLowerCase().indexOf(q)>=0;});renderTable(filtered);}function buildTable(){var rows=[];tableData.forEach(function(p){rows.push([p.mapid,p.owner||'',p.owner2||'',p.site||'',p.site_city||'',p.site_state||'',p.site_zip||'',p.mail||'',p.city||'',p.state||'',p.zip||'',p.btype||'',p.ownertype||'',p.occupied||'',p.confidence||'',p.addressas||'',p.salute||'',p.dnc==='YES'?'YES':'',p.research==='Yes'?'Yes':'',p.notes||'',p.sheet||'',]);});rows.sort(function(a,b){return String(a[0]).localeCompare(String(b[0]),undefined,{numeric:true});});window._tableRows=rows;renderTable(rows);}function renderTable(rows){var tbody=document.getElementById('table-body');tbody.innerHTML='';rows.forEach(function(r){var tr=document.createElement('tr');if(r[14]==='YES')tr.style.background='#fff0f0';tr.innerHTML='<td>'+r[0]+'</td>'+'<td>'+r[1]+'</td>'+'<td>'+r[2]+'</td>'+'<td>'+r[3]+'</td>'+'<td>'+r[4]+'</td>'+'<td>'+r[5]+'</td>'+'<td>'+r[6]+'</td>'+'<td>'+r[7]+'</td>'+'<td>'+r[8]+'</td>'+'<td>'+r[9]+'</td>'+'<td>'+r[10]+'</td>'+'<td>'+r[11]+'</td>'+'<td>'+r[12]+'</td>'+'<td>'+r[13]+'</td>'+'<td>'+r[14]+'</td>'+'<td>'+r[15]+'</td>'+'<td>'+r[16]+'</td>'+'<td>'+r[17]+'</td>'+'<td>'+r[18]+'</td>'+'<td>'+r[19]+'</td>'+'<td>'+r[20]+'</td>';tbody.appendChild(tr);});}var legend=document.getElementById('legend');var dragging=false,ox=0,oy=0;legend.addEventListener('mousedown',function(e){if(e.target.id==='legend-close')return;dragging=true;ox=e.clientX-legend.getBoundingClientRect().left;oy=e.clientY-legend.getBoundingClientRect().top;legend.style.right='auto';legend.style.bottom='auto';e.preventDefault();});document.addEventListener('mousemove',function(e){if(!dragging)return;legend.style.left=(e.clientX-ox)+'px';legend.style.top=(e.clientY-oy)+'px';});document.addEventListener('mouseup',function(){dragging=false;});function shareTerritory(){var s=encodeURIComponent('Apartment_429 Territory Map');var b=encodeURIComponent('Hello,\n\nHere is the link for the Apartment_429 territory:\n\nhttps://spleaders.github.io/Territory-Maps-and-MailLists/Apartment_429/\n\nThis link opens a page with two buttons:\n- Open Interactive Map\n- Open Mailing List\n\nWorks on any device or browser - no software needed.\n\nThank you!');window.location.href='mailto:?subject='+s+'&body='+b;}function searchMapID(val){var clearBtn=document.getElementById('mapid-search-clear');if(!val){clearBtn.style.display='none';return;}clearBtn.style.display='inline';var id=parseInt(val);if(isNaN(id))return;var found=null;parcelsData.features.forEach(function(f){if(f.properties.mapid===id){found=f;}});if(!found)return;var coords=found.geometry.coordinates;function getCenter(c){var pts=[];function collect(x){if(typeof x[0]==='number')pts.push(x);else x.forEach(collect);}collect(c);var lat=pts.reduce(function(s,p){return s+p[1];},0)/pts.length;var lng=pts.reduce(function(s,p){return s+p[0];},0)/pts.length;return [lat,lng];}var center=getCenter(coords);map.setView(center,17);}function clearMapID(){document.getElementById('mapid-input').value='';document.getElementById('mapid-search-clear').style.display='none';}</script></body>
+<script>
+var _allRows=[];
+function _colHdr(){return '<div class=ml-col-header><span>MapID</span><span>Owner 1</span><span>Owner 2</span><span>Site Address</span><span>St</span><span>Reason/Notes</span><span>Mailing Address</span></div>';}
+function _row(p,cls){
+var sa=(p.site||'')+(p.site_city?', '+p.site_city:'');
+var ma=(p.mail||'')+(p.city?', '+p.city:'')+(p.state?' '+p.state:'')+(p.zip?' '+p.zip:'');
+return '<div class="ml-row '+cls+'">'
++'<span>'+p.mapid+'</span>'
++'<span>'+(p.owner||'')+'</span>'
++'<span>'+(p.owner2||'')+'</span>'
++'<span>'+sa+'</span>'
++'<span>'+(p.site_state||'')+'</span>'
++'<span>'+(p.notes||'')+'</span>'
++'<span>'+ma+'</span>'
++'</div>';}
+function buildTable(){_allRows=tableData.slice();renderTable(_allRows);}
+function filterTable(){
+var q=document.getElementById('search-box').value.toLowerCase();
+renderTable(_allRows.filter(function(p){
+return [p.mapid,p.owner,p.owner2,p.site,p.site_city,p.mail,p.city,p.notes].join(' ').toLowerCase().indexOf(q)>=0;}));}
+function renderTable(rows){
+var conf=[],res=[],dnc=[];
+rows.forEach(function(p){
+if(p.dnc==='YES'){dnc.push(p);}
+else if(p.occupied==='Yes'&&p.confidence==='High'&&p.research!=='Yes'){conf.push(p);}
+else{res.push(p);}});
+var h='';
+h+='<div class=ml-hdr style="background:#375623">✔ CONFIDENT RESIDENTS ('+conf.length+' parcels) — Ready to write letters</div>';
+h+=_colHdr();
+conf.forEach(function(p,i){h+=_row(p,i%2===0?'ml-even-g':'ml-odd');});
+if(!conf.length)h+='<div class=ml-none>None</div>';
+h+='<div class=ml-gap></div>';
+h+='<div class=ml-hdr style="background:#7F6000">? NEEDS RESEARCH ('+res.length+' parcels) — Verify before writing</div>';
+h+=_colHdr();
+res.forEach(function(p,i){h+=_row(p,i%2===0?'ml-even-y':'ml-odd');});
+if(!res.length)h+='<div class=ml-none>None</div>';
+h+='<div class=ml-gap></div>';
+h+='<div class=ml-hdr style="background:#C00000">✘ DO NOT CALL ('+dnc.length+' parcels)</div>';
+h+=_colHdr();
+dnc.forEach(function(p){h+=_row(p,'ml-dnc');});
+if(!dnc.length)h+='<div class=ml-none>None</div>';
+document.getElementById('table-body').innerHTML=h;}
+function showTab(tab){
+document.getElementById('map').style.display=tab==='map'?'block':'none';
+document.getElementById('table-view').style.display=tab==='table'?'block':'none';
+if(tab==='map'){setTimeout(function(){map.invalidateSize();},100);}
+document.querySelectorAll('.tab-btn').forEach(function(b,i){
+b.classList.toggle('active',(tab==='map'&&i===0)||(tab==='table'&&i===1));});
+if(tab==='table'&&!window._tableBuilt){buildTable();window._tableBuilt=true;}}
+var legend=document.getElementById('legend');var dragging=false,ox=0,oy=0;legend.addEventListener('mousedown',function(e){if(e.target.id==='legend-close')return;dragging=true;ox=e.clientX-legend.getBoundingClientRect().left;oy=e.clientY-legend.getBoundingClientRect().top;legend.style.right='auto';legend.style.bottom='auto';e.preventDefault();});document.addEventListener('mousemove',function(e){if(!dragging)return;legend.style.left=(e.clientX-ox)+'px';legend.style.top=(e.clientY-oy)+'px';});document.addEventListener('mouseup',function(){dragging=false;});function shareTerritory(){var s=encodeURIComponent('Apartment_429 Territory Map');var b=encodeURIComponent('Hello,\n\nHere is the link for the Apartment_429 territory:\n\nhttps://spleaders.github.io/Territory-Maps-and-MailLists/Apartment_429/\n\nThis link opens a page with two buttons:\n- Open Interactive Map\n- Open Mailing List\n\nWorks on any device or browser - no software needed.\n\nThank you!');window.location.href='mailto:?subject='+s+'&body='+b;}function searchMapID(val){var clearBtn=document.getElementById('mapid-search-clear');if(!val){clearBtn.style.display='none';return;}clearBtn.style.display='inline';var id=parseInt(val);if(isNaN(id))return;var found=null;parcelsData.features.forEach(function(f){if(f.properties.mapid===id){found=f;}});if(!found)return;var coords=found.geometry.coordinates;function getCenter(c){var pts=[];function collect(x){if(typeof x[0]==='number')pts.push(x);else x.forEach(collect);}collect(c);var lat=pts.reduce(function(s,p){return s+p[1];},0)/pts.length;var lng=pts.reduce(function(s,p){return s+p[0];},0)/pts.length;return [lat,lng];}var center=getCenter(coords);map.setView(center,17);}function clearMapID(){document.getElementById('mapid-input').value='';document.getElementById('mapid-search-clear').style.display='none';}function printMap(){var c=map.getCenter();var z=map.getZoom();var el=document.getElementById('map');document.getElementById('share-btn').style.display='none';document.getElementById('print-btn').style.display='none';document.getElementById('btn-bar').style.display='none';el.style.position='fixed';el.style.top='0';el.style.left='0';el.style.width='100vw';el.style.height='100vh';el.style.zIndex='9999';map.invalidateSize();map.setView(c,z);setTimeout(function(){map.setView(c,z);requestAnimationFrame(function(){requestAnimationFrame(function(){window.print();});});},800);}window.onafterprint=function(){var el=document.getElementById('map');el.style.position='';el.style.top='';el.style.left='';el.style.width='';el.style.height='';el.style.zIndex='';map.invalidateSize();document.getElementById('share-btn').style.display='';document.getElementById('print-btn').style.display='';document.getElementById('btn-bar').style.display='';};</script></body>
 </html>

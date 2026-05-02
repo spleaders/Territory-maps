@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Apartment_481 Territory Map</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: #f0f0f0; }
+#header {
+  background: #4CAF50; color: white;
+  padding: 8px 16px; display: flex;
+  align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 4px; min-height: 56px; box-sizing: border-box;
+}
+#header h1 { font-size: 17px; font-weight: bold; margin: 0; line-height: 1.2; }
+#header .subtitle { font-size: 10px; opacity: 0.75; margin-top: 1px; }
+#header .stats { font-size: 12px; opacity: 0.9; }
+#map { height: calc(100vh - 96px); width: 100%; display: block; }
+.leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.3);
+  border-left: 6px solid #4CAF50;
+  padding: 0;
+}
+.leaflet-popup-content { margin: 0; width: 360px !important; }
+.popup-inner { padding: 18px 22px; }
+.popup-mapid {
+  font-size: 14px; color: #888; text-transform: uppercase;
+  letter-spacing: 1px; margin-bottom: 4px;
+}
+.popup-site {
+  font-size: 20px; font-weight: bold; color: #4CAF50;
+  margin-bottom: 7px; line-height: 1.3;
+}
+.popup-owner { font-size: 17px; color: #222; margin-bottom: 4px; }
+.popup-mail { font-size: 17px; color: #555; margin-bottom: 10px; }
+.popup-badge {
+  display: inline-block; padding: 5px 12px; border-radius: 10px;
+  font-size: 14px; font-weight: bold; color: white; margin-right: 4px;
+}
+.badge-owner  { background: #4CAF50; }
+.badge-vacant { background: #808080; }
+.badge-inst   { background: #548235; }
+.badge-biz    { background: #7B2D8B; }
+.badge-dnc    { background: #cc0000; }
+.badge-research { background: #E65100; }
+#legend {
+  position: absolute; bottom: 24px; right: 10px; z-index: 1000;
+  background: white; border-radius: 12px; padding: 16px 22px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.2); font-size: 17px;
+  min-width: 224px; cursor: move; user-select: none;
+}
+#legend h4 {
+  font-size: 18px; margin-bottom: 12px; color: #333;
+  border-bottom: 2px solid #eee; padding-bottom: 6px;
+}
+#legend-close {
+  float: right; cursor: pointer; font-size: 16px; color: #aaa;
+}
+#legend-close:hover { color: #333; }
+.legend-row { display: flex; align-items: center; margin-bottom: 10px; }
+.legend-swatch {
+  width: 20px; height: 20px; border-radius: 4px;
+  margin-right: 12px; flex-shrink: 0;
+  border: 1px solid rgba(0,0,0,0.25);
+  display: inline-block !important;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+#notes-bar {
+  display: none; position: absolute; top: 58px; left: 10px;
+  right: 10px; z-index: 1000;
+  background: #FFF8E1; border-left: 4px solid #F5A623;
+  border-radius: 6px; padding: 8px 12px;
+  font-size: 12px; color: #555; max-width: 500px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+#tab-bar {
+  display: flex; background: #4CAF50;
+  padding: 0 12px; height: 40px; box-sizing: border-box;
+}
+.tab-btn {
+  padding: 8px 20px; cursor: pointer; color: rgba(255,255,255,0.7);
+  font-size: 13px; font-weight: bold; border: none;
+  background: transparent; border-bottom: 3px solid transparent;
+}
+.tab-btn.active {
+  color: white; border-bottom: 3px solid white;
+}
+
+#table-view {
+  display: none; height: calc(100vh - 90px);
+  overflow-x: scroll; overflow-y: auto; padding: 16px; background: #f5f5f5;
+}
+#table-view::-webkit-scrollbar {
+  height: 12px; width: 12px;
+}
+#table-view::-webkit-scrollbar-track {
+  background: #ddd; border-radius: 6px;
+}
+#table-view::-webkit-scrollbar-thumb {
+  background: #888; border-radius: 6px;
+}
+#table-view::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+#search-box {
+  width: 100%; max-width: 400px; padding: 8px 12px;
+  border: 1px solid #ccc; border-radius: 6px;
+  font-size: 14px; margin-bottom: 12px;
+}
+#data-table {
+  width: 1480px; border-collapse: collapse;
+  table-layout: fixed;
+  background: white; font-size: 13px;
+}
+#table-wrapper {
+  display: block; overflow-x: auto;
+  border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+#data-table th {
+  background: #4CAF50; color: white;
+  padding: 10px 12px; text-align: left;
+  cursor: pointer; white-space: nowrap;
+  user-select: none; position: sticky;
+  top: 0; z-index: 10; min-width: 60px;
+}
+#data-table th:hover { opacity: 0.85; }
+#data-table th.sort-asc::after { content: " "; font-size: 10px; }
+#data-table th.sort-desc::after { content: " "; font-size: 10px; }
+#data-table td {
+  padding: 8px 12px; border-bottom: 1px solid #eee;
+  vertical-align: top; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+  max-width: 0;
+}
+#data-table td:hover {
+  white-space: normal; overflow: visible;
+  background: #fffde7; position: relative; z-index: 5;
+}
+#data-table th {
+  position: sticky; top: 0; z-index: 10;
+  resize: horizontal; overflow: auto;
+  min-width: 40px;
+}
+#data-table tr:hover td { background: #f0f4ff; }
+.badge-res   { background: #4CAF50; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+.badge-biz2  { background: #7B2D8B; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+.badge-inst2 { background: #548235; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+.badge-vac2  { background: #808080; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+.badge-dnc2  { background: #cc0000; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+.badge-res2  { background: #E65100; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+#btn-bar {
+  position: absolute; top: 100px; left: 50%; transform: translateX(-50%);
+  z-index: 1000; display: flex; gap: 8px; align-items: center;
+}
+#share-btn, #print-btn {
+  background: rgba(255,255,255,0.95); border: 1px solid #ccc;
+  border-radius: 8px; padding: 6px 14px;
+  font-size: 13px; font-weight: bold; color: #333;
+  cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+#share-btn:hover, #print-btn:hover { background: #f0f0f0; }
+@media print {
+  @page { margin: 0; size: auto; }
+  #header, #tab-bar, #btn-bar, #share-btn, #print-btn, #mapid-search,
+  #notes-bar, #table-view,
+  .leaflet-control-container { display: none !important; }
+  html, body { margin: 0 !important; padding: 0 !important;
+                overflow: hidden !important; }
+  #map { position: fixed !important;
+          top: 0 !important; left: 0 !important;
+          width: 100vw !important; height: 100vh !important;
+          z-index: 1 !important; }
+  #legend { z-index: 2 !important;
+             max-width: 200px !important;
+             right: 10px !important;
+             bottom: 10px !important;
+             left: auto !important;
+             top: auto !important;
+             font-size: 13px !important; }
+}
+#mapid-search {
+  background: rgba(255,255,255,0.97); border: 1px solid #ccc;
+  border-radius: 8px; padding: 6px 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  display: flex; align-items: center; gap: 8px;
+}
+#mapid-search input {
+  border: none; outline: none; font-size: 13px;
+  width: 80px; background: transparent;
+}
+#mapid-search label {
+  font-size: 12px; color: #666; white-space: nowrap;
+}
+#mapid-search-clear {
+  cursor: pointer; color: #aaa; font-size: 14px;
+  display: none;
+}
+#mapid-search-clear:hover { color: #333; }
+.ml-hdr{padding:10px 16px;font-weight:bold;font-size:13px;color:white;letter-spacing:0.5px;}
+.ml-col-header{display:grid;grid-template-columns:60px 200px 200px 240px 30px 200px 240px;
+  background:#4472C4;color:white;font-size:12px;font-weight:bold;}
+.ml-col-header span{padding:6px 8px;white-space:nowrap;overflow:hidden;
+  border-right:1px solid rgba(255,255,255,0.2);}
+.ml-row{display:grid;grid-template-columns:60px 200px 200px 240px 30px 200px 240px;
+  font-size:12px;border-bottom:1px solid #eee;}
+.ml-row span{padding:5px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ml-row:hover span{white-space:normal;overflow:visible;background:#fffde7;
+  position:relative;z-index:5;}
+.ml-even-g{background:#E2EFDA;}
+.ml-odd{background:#FFFFFF;}
+.ml-even-y{background:#FFF2CC;}
+.ml-dnc{background:#FFB3B3;}
+.ml-gap{height:12px;background:#e8e8e8;}
+.ml-none{padding:8px 16px;color:#888;font-size:12px;font-style:italic;}
+</style>
+</head>
+<body>
+<div id="header">
+  <div>
+    <h1>Apartment_481 Territory</h1>
+    <div class="subtitle">Apartment_481</div>
+  </div>
+  <div class="stats">
+    4 parcels &nbsp;&nbsp;
+    0 owner occupied &nbsp;&nbsp;
+    0 need research &nbsp;&nbsp;
+    0 vacant
+    
+  </div>
+</div>
+<div id="notes-bar">Before working apartment territories.  Please review the following:  KM 12/08 pg. 3-4 and KM 11/85 Pg. 3-6 | Apartments located South West of Marian College.  650 E. 2nd St., 150 and 153 S. National Ave. 171 S. Royal Ave.</div>
+<div id="tab-bar">
+  <button class="tab-btn active" onclick="showTab('map')">&#x1F5FA; Map</button>
+  <button class="tab-btn" onclick="showTab('table')">&#x1F4CB; Mailing List</button>
+</div>
+<div id="map"></div>
+<div id="table-view">
+  <div style="padding:10px 16px 6px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+    <input type="text" id="search-box" placeholder="Search by name, address, MapID..." oninput="filterTable()"
+      style="padding:7px 12px;border:1px solid #ccc;border-radius:6px;font-size:13px;width:300px;">
+  </div>
+  <div id="table-body"></div>
+</div>
+<div id="btn-bar">
+<button id="share-btn" onclick="shareTerritory()">&#x2709; Share Territory</button>
+<button id="print-btn" onclick="printMap()">&#x1F5A8; Print Map</button>
+<div id="mapid-search">
+  <label>&#x1F50D; MapID</label>
+  <input type="number" id="mapid-input" placeholder="e.g. 42" min="1"
+    oninput="searchMapID(this.value)"
+    onkeydown="if(event.key==='Escape'){clearMapID();}" />
+  <span id="mapid-search-clear" onclick="clearMapID()">&#x2715;</span>
+</div>
+</div>
+<div id="legend">
+  <h4>Legend <span id="legend-close" onclick="document.getElementById('legend').style.display='none'">&#x2715;</span></h4>
+  <div class="legend-row">
+    <div class="legend-swatch" style="background:#2E5496"></div>Owner Occupied
+  </div>
+  <div class="legend-row">
+    <div class="legend-swatch" style="background:#5B9BD5"></div>Needs Research
+  </div>
+  <div class="legend-row">
+    <div class="legend-swatch" style="background:#548235"></div>Institution
+  </div>
+  <div class="legend-row">
+    <div class="legend-swatch" style="background:#7B2D8B"></div>Business
+  </div>
+  <div class="legend-row">
+    <div class="legend-swatch" style="background:#808080"></div>Vacant
+  </div>
+  <div class="legend-row">
+    <div class="legend-swatch" style="background:#CC0000"></div>Do Not Contact
+  </div>
+</div>
+<script>
+var map = L.map('map', {zoomControl: true, preferCanvas: true, scrollWheelZoom: false, zoomSnap: 0.25, zoomDelta: 0.25});
+document.getElementById('map').addEventListener('wheel', function(e){ e.preventDefault(); var delta = e.deltaY > 0 ? -0.25 : 0.25; var mousePos = map.mouseEventToLatLng(e); map.setZoomAround(mousePos, map.getZoom() + delta); }, {passive: false});
+L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+  attribution: ' OpenStreetMap contributors | CartoDB', maxZoom: 20, subdomains: 'abcd'
+}).addTo(map);
+
+var boundaryData = {"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"coordinates": [[[-88.42300057411194, 43.77317395649366], [-88.42192232608795, 43.7739912723994], [-88.42125177383423, 43.774219808971765], [-88.42119812965393, 43.77487055239382], [-88.42292010784149, 43.774866678942026], [-88.42334389686584, 43.7738363318535], [-88.42300057411194, 43.77317395649366], [-88.42300057411194, 43.77317395649366]]], "type": "Polygon"}, "properties": {}}]};
+var buildingsData = {"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-88.422769, 43.773413], [-88.422989, 43.773396], [-88.423067, 43.773921], [-88.422847, 43.773939], [-88.422769, 43.773413]]]}, "properties": {"mapid": 4, "subid": "4", "site": "171 S ROYAL AV, Fond du Lac WI 54935", "owner": "RD APTS LLC", "salute": "Dear Resident", "sheet": "Multi_Occupant"}}, {"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-88.422085, 43.77428], [-88.422071, 43.773958], [-88.422293, 43.773952], [-88.422308, 43.774274], [-88.422085, 43.77428]]]}, "properties": {"mapid": 3, "subid": "3", "site": "150 S NATIONAL AV, Fond du Lac WI 54935", "owner": "VIPER CAPITAL LLC", "salute": "Dear Resident", "sheet": "Multi_Occupant"}}, {"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-88.421431, 43.774681], [-88.421403, 43.774238], [-88.421568, 43.774232], [-88.421597, 43.774676], [-88.421431, 43.774681]]]}, "properties": {"mapid": 2, "subid": "2", "site": "153 S NATIONAL AV, Fond du Lac WI 54935", "owner": "NOLDEN PROPERTIES LLC", "salute": "Dear Resident", "sheet": "Multi_Occupant"}}, {"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-88.422657, 43.774752], [-88.422211, 43.774749], [-88.422213, 43.774589], [-88.422658, 43.774592], [-88.422657, 43.774752]]]}, "properties": {"mapid": 1, "subid": "1", "site": "650 E 2nd ST, Fond du Lac WI 54935", "owner": "FALCON CAPITAL LLC", "salute": "Dear Resident", "sheet": "Multi_Occupant"}}]};
+var isApartment = true;
+var tableData = [{"mapid": "(No data)", "owner": "", "owner2": "", "site": "", "site_city": "", "site_state": "", "site_zip": "", "mail": "", "city": "", "state": "", "zip": "", "btype": "", "ownertype": "", "occupied": "", "confidence": "", "addressas": "", "salute": "", "dnc": "", "research": "", "notes": "", "sheet": "Duplicates"}, {"mapid": "1", "owner": "FALCON CAPITAL LLC", "owner2": "MARIE VILLA LLC", "site": "650 E 2nd ST", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "333 BISHOPS WAY STE 160", "city": "Brookfield", "state": "WI", "zip": "53005", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Falcon Capital Llc \u2014 Marie Villa Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant"}, {"mapid": "2", "owner": "NOLDEN PROPERTIES LLC", "owner2": "", "site": "153 S NATIONAL AV", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "PO BOX 404", "city": "Pardeeville", "state": "WI", "zip": "53954", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Nolden Properties Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant"}, {"mapid": "3", "owner": "VIPER CAPITAL LLC", "owner2": "FDL NATIONAL LLC", "site": "150 S NATIONAL AV", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "333 BISHOPS WAY #160", "city": "Brookfield", "state": "WI", "zip": "53005", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Viper Capital Llc \u2014 Fdl National Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant"}, {"mapid": "4", "owner": "RD APTS LLC", "owner2": "", "site": "171 S ROYAL AV", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "W7428 HOGSBACK RD", "city": "Juneau", "state": "WI", "zip": "53039", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Rd Apts Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant"}];
+
+if (buildingsData) {
+  L.geoJSON(buildingsData, {
+    style: {
+      fillColor: '#555555',
+      fillOpacity: 0.55,
+      color: '#333333',
+      weight: 0.8
+    },
+    interactive: isApartment,
+    onEachFeature: isApartment ? function(feature, layer) {
+      var p = feature.properties;
+      // Permanent sub-ID label on each building footprint
+      var label = p.subid ? p.subid.toUpperCase() : (p.mapid ? String(p.mapid) : '');
+      if (label) {
+        layer.bindTooltip(label, {
+          permanent: true, direction: 'center',
+          className: 'mapid-label', offset: [0, 0]
+        });
+      }
+      if (p.site && p.site !== '') {
+        var subLabel = p.subid ? p.subid.toUpperCase() : ('Parcel #' + p.mapid);
+        var saluteHtml = p.salute && p.salute !== 'nan' && p.salute !== ''
+          ? '<div class="popup-mail" style="color:#888">Salutation: ' + p.salute + '</div>' : '';
+        var html = '<div class="popup-inner">' +
+          '<div class="popup-mapid">Building ' + subLabel + '</div>' +
+          '<div class="popup-site">' + p.site + '</div>' +
+          '<div class="popup-owner">' + (p.owner || '') + '</div>' +
+          saluteHtml +
+          '</div>';
+        layer.bindPopup(html, {maxWidth: 300});
+      }
+    } : function(feature, layer) {}
+  }).addTo(map);
+}
+
+if (boundaryData) {
+  var boundary = L.geoJSON(boundaryData, {
+    style: {
+      color: '#4CAF50', weight: 3, opacity: 1,
+      fillColor: '#4CAF50', fillOpacity: 0.04,
+      dashArray: '8,5'
+    }
+  }).addTo(map);
+  map.fitBounds(boundary.getBounds(), {padding: [30, 30]});
+  // Territory name label — centered on boundary, semi-transparent
+  var bounds = boundary.getBounds();
+  var center = bounds.getCenter();
+  L.marker(center, {
+    icon: L.divIcon({
+      className: '',
+      html: '<div style="font-size:52px;font-weight:900;'
+           +'color:#1A3A6B;opacity:0.55;'
+           +'white-space:nowrap;pointer-events:none;'
+           +'position:relative;z-index:9999;'
+           +'text-shadow:2px 2px 0px white,-2px -2px 0px white,2px -2px 0px white,-2px 2px 0px white;'
+           +'transform:translate(-50%,-50%);">Apartment_481</div>',
+      iconSize: [0, 0],
+      iconAnchor: [0, 0]
+    }),
+    interactive: false
+  }).addTo(map);
+}
+
+var parcelsData = {"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"coordinates": [[[[-88.42298300227496, 43.7731872760097], [-88.42299753492793, 43.77320256633679], [-88.4230389167647, 43.77325836859063], [-88.42307159288355, 43.77331712591567], [-88.42307901117061, 43.77333291872596], [-88.42315351382018, 43.773491534616014], [-88.42316932548168, 43.77352797188521], [-88.42319181756756, 43.773594567574456], [-88.4232065811252, 43.77366228884112], [-88.4232135136465, 43.7737306655952], [-88.42321243379583, 43.77380105286303], [-88.42320305626555, 43.77387111573785], [-88.4231854496445, 43.773940341552475], [-88.42316577795884, 43.77399416630046], [-88.42314112842436, 43.7740469039763], [-88.42311161386633, 43.77409831316269], [-88.42308132446652, 43.77414643292946], [-88.42253777910508, 43.774103978201545], [-88.42257968946434, 43.77391436830968], [-88.42258685939552, 43.77388193353329], [-88.42257993416477, 43.77379978395859], [-88.42256839212978, 43.77366288779726], [-88.42251552693953, 43.77354162400634], [-88.42298300227496, 43.7731872760097]]]], "type": "MultiPolygon"}, "properties": {"mapid": 4, "owner": "RD APTS LLC", "site": "171 S ROYAL AV, Fond du Lac WI 54935", "mail": "W7428 HOGSBACK RD", "sheet": "Multi_Occupant", "occupied": "No", "btype": "Apartment Building", "research": "Yes", "salute": "Dear Resident", "dnc": "", "fill": "#2E5496", "owner2": "", "ownertype": "Business / Rental", "confidence": "High", "addressas": "Rd Apts Llc", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "city": "Juneau", "state": "WI", "zip": "53039"}}, {"type": "Feature", "geometry": {"coordinates": [[[[-88.42203428841324, 43.7739064045515], [-88.42258685939552, 43.77388193353329], [-88.42257968946434, 43.77391436830968], [-88.42253777910508, 43.774103978201545], [-88.42308132446652, 43.77414643292946], [-88.42295557646736, 43.77434609532463], [-88.42293874209771, 43.77437285180063], [-88.42248256536251, 43.77435377740636], [-88.4219648402713, 43.7743766955251], [-88.42196253212177, 43.77434931412372], [-88.421944064513, 43.7741302656047], [-88.42193174516336, 43.77398413270614], [-88.42203428841324, 43.7739064045515]]]], "type": "MultiPolygon"}, "properties": {"mapid": 3, "owner": "VIPER CAPITAL LLC & FDL NATIONAL LLC", "site": "150 S NATIONAL AV, Fond du Lac WI 54935", "mail": "333 BISHOPS WAY #160", "sheet": "Multi_Occupant", "occupied": "No", "btype": "Apartment Building", "research": "Yes", "salute": "Dear Resident", "dnc": "", "fill": "#2E5496", "owner2": "FDL NATIONAL LLC", "ownertype": "Business / Rental", "confidence": "High", "addressas": "Viper Capital Llc \u2014 Fdl National Llc", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "city": "Brookfield", "state": "WI", "zip": "53005"}}, {"type": "Feature", "geometry": {"coordinates": [[[[-88.42200184068227, 43.774815616071294], [-88.42200183825783, 43.774815570169615], [-88.42198099862216, 43.77456836263061], [-88.4219648402713, 43.7743766955251], [-88.42248256536251, 43.77435377740636], [-88.42293874209771, 43.77437285180063], [-88.42292980841388, 43.77438704059014], [-88.42290345909065, 43.77443413550314], [-88.42288277563667, 43.77448269318564], [-88.4228679102009, 43.77453235647637], [-88.42285897213944, 43.77458276008103], [-88.4228562395511, 43.77461952326939], [-88.42284964118733, 43.774829598797886], [-88.42242574026383, 43.77482260777022], [-88.42200184068227, 43.774815616071294]]]], "type": "MultiPolygon"}, "properties": {"mapid": 1, "owner": "FALCON CAPITAL LLC & MARIE VILLA LLC", "site": "650 E 2nd ST, Fond du Lac WI 54935", "mail": "333 BISHOPS WAY STE 160", "sheet": "Multi_Occupant", "occupied": "No", "btype": "Apartment Building", "research": "Yes", "salute": "Dear Resident", "dnc": "", "fill": "#2E5496", "owner2": "MARIE VILLA LLC", "ownertype": "Business / Rental", "confidence": "High", "addressas": "Falcon Capital Llc \u2014 Marie Villa Llc", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "city": "Brookfield", "state": "WI", "zip": "53005"}}, {"type": "Feature", "geometry": {"coordinates": [[[[-88.42125177383423, 43.774219808971765], [-88.42163711288097, 43.77408847831938], [-88.42169318940137, 43.774753660470616], [-88.42120839984834, 43.77474596737047], [-88.42125177383423, 43.774219808971765]]]], "type": "MultiPolygon"}, "properties": {"mapid": 2, "owner": "NOLDEN PROPERTIES LLC", "site": "153 S NATIONAL AV, Fond du Lac WI 54935", "mail": "PO BOX 404", "sheet": "Multi_Occupant", "occupied": "No", "btype": "Apartment Building", "research": "Yes", "salute": "Dear Resident", "dnc": "", "fill": "#2E5496", "owner2": "", "ownertype": "Business / Rental", "confidence": "High", "addressas": "Nolden Properties Llc", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "city": "Pardeeville", "state": "WI", "zip": "53954"}}]};
+
+function getPopup(p) {
+  var badge = '';
+  if (p.dnc === 'YES') badge = '<span class="popup-badge badge-dnc">DO NOT CONTACT</span>';
+  else if (p.sheet === 'Institutions') badge = '<span class="popup-badge badge-inst">' + p.btype + '</span>';
+  else if (p.sheet === 'Vacant') badge = '<span class="popup-badge badge-vacant">Vacant</span>';
+  else if (p.btype === 'Commercial / Rental') badge = '<span class="popup-badge badge-biz">Business</span>';
+  else if (p.occupied === 'Yes') badge = '<span class="popup-badge badge-owner">Owner Occupied</span>';
+  if (p.research === 'Yes') badge += '<span class="popup-badge badge-research">Research Needed</span>';
+
+  var mailHtml = p.mail ? '<div class="popup-mail"> ' + p.mail + '</div>' : '';
+  var saluteHtml = p.salute && p.salute !== 'nan' ? '<div class="popup-mail" style="color:#888">Salutation: ' + p.salute + '</div>' : '';
+
+  return '<div class="popup-inner">' +
+    '<div class="popup-mapid">Parcel #' + p.mapid + '</div>' +
+    '<div class="popup-site">' + p.site + '</div>' +
+    '<div class="popup-owner">' + p.owner + '</div>' +
+    mailHtml + saluteHtml +
+    '<div style="margin-top:6px">' + badge + '</div>' +
+    '</div>';
+}
+
+function getParcelArea(feature) {
+  var coords = feature.geometry.coordinates;
+  var allPoints = [];
+  function collectPoints(c) {
+    if (typeof c[0] === 'number') { allPoints.push(c); }
+    else { c.forEach(collectPoints); }
+  }
+  collectPoints(coords);
+  if (allPoints.length < 2) return 0;
+  var lats = allPoints.map(function(p) { return p[1]; });
+  var lngs = allPoints.map(function(p) { return p[0]; });
+  return (Math.max.apply(null,lats)-Math.min.apply(null,lats)) * (Math.max.apply(null,lngs)-Math.min.apply(null,lngs));
+}
+function getOpacity(feature) {
+  var area = getParcelArea(feature);
+  if (area < 0.000005) return 0.35;
+  if (area < 0.00005)  return 0.25;
+  if (area < 0.0002)   return 0.18;
+  return 0.12;
+}
+// Store per-parcel area for label sizing
+var parcelAreas = {};
+parcelsData.features.forEach(function(f) {
+  parcelAreas[f.properties.mapid] = getParcelArea(f);
+});
+
+L.geoJSON(parcelsData, {
+  style: function(feature) {
+    var p = feature.properties;
+    return {
+      fillColor: p.fill,
+      fillOpacity: getOpacity(feature),
+      color: 'rgba(0,0,0,0.65)',
+      weight: 2.0
+    };
+  },
+  onEachFeature: function(feature, layer) {
+    var p = feature.properties;
+    layer.bindPopup(getPopup(p), {maxWidth: 300});
+    var area = getParcelArea(feature);
+    // Store area on tooltip element for zoom-aware sizing
+    var tt = layer.bindTooltip(String(p.mapid), {
+      permanent: true, direction: 'center',
+      className: 'mapid-label',
+      offset: [0, 0]
+    });
+    layer.on('tooltipopen', function(e) {
+      e.tooltip.getElement().setAttribute('data-area', area);
+    });
+  }
+}).addTo(map);
+
+if (!boundaryData) {
+  map.setView([43.77, -88.43], 14);
+}
+
+// Scale MapID labels by zoom level AND parcel area
+function updateLabelSizes() {
+  var z = map.getZoom();
+  // Base size from zoom
+  var baseSize;
+  if      (z <= 13) baseSize = 11;
+  else if (z <= 14) baseSize = 15;
+  else if (z <= 15) baseSize = 19;
+  else if (z <= 16) baseSize = 24;
+  else              baseSize = 30;
+  document.querySelectorAll('.mapid-label').forEach(function(el) {
+    var area = parseFloat(el.getAttribute('data-area') || 0);
+    var scale = 1.0;
+    // Shrink labels for small parcels
+    if      (area < 0.000003) scale = 0.45;
+    else if (area < 0.000008) scale = 0.60;
+    else if (area < 0.00002)  scale = 0.75;
+    else if (area < 0.00006)  scale = 0.88;
+    var finalSize = Math.max(7, Math.round(baseSize * scale));
+    el.style.fontSize = finalSize + 'px';
+  });
+}
+map.on('zoomend', updateLabelSizes);
+map.on('load', updateLabelSizes);
+setTimeout(updateLabelSizes, 500);
+</script>
+<style>
+.mapid-label {
+  background: transparent; border: none; box-shadow: none;
+  font-weight: bold; color: white;
+  text-shadow: 0 0 3px rgba(0,0,0,0.9), 0 0 3px rgba(0,0,0,0.9);
+  pointer-events: none; transition: font-size 0.1s;
+}
+</style>
+<script>
+var _allRows=[];
+function _colHdr(){return '<div class=ml-col-header><span>MapID</span><span>Owner 1</span><span>Owner 2</span><span>Site Address</span><span>St</span><span>Reason/Notes</span><span>Mailing Address</span></div>';}
+function _row(p,cls){
+var sa=(p.site||'')+(p.site_city?', '+p.site_city:'');
+var ma=(p.mail||'')+(p.city?', '+p.city:'')+(p.state?' '+p.state:'')+(p.zip?' '+p.zip:'');
+return '<div class="ml-row '+cls+'">'
++'<span>'+p.mapid+'</span>'
++'<span>'+(p.owner||'')+'</span>'
++'<span>'+(p.owner2||'')+'</span>'
++'<span>'+sa+'</span>'
++'<span>'+(p.site_state||'')+'</span>'
++'<span>'+(p.notes||'')+'</span>'
++'<span>'+ma+'</span>'
++'</div>';}
+function buildTable(){_allRows=tableData.slice();renderTable(_allRows);}
+function filterTable(){
+var q=document.getElementById('search-box').value.toLowerCase();
+renderTable(_allRows.filter(function(p){
+return [p.mapid,p.owner,p.owner2,p.site,p.site_city,p.mail,p.city,p.notes].join(' ').toLowerCase().indexOf(q)>=0;}));}
+function renderTable(rows){
+var conf=[],res=[],dnc=[];
+rows.forEach(function(p){
+if(p.dnc==='YES'){dnc.push(p);}
+else if(p.occupied==='Yes'&&p.confidence==='High'&&p.research!=='Yes'){conf.push(p);}
+else{res.push(p);}});
+var h='';
+h+='<div class=ml-hdr style="background:#375623">✔ CONFIDENT RESIDENTS ('+conf.length+' parcels) — Ready to write letters</div>';
+h+=_colHdr();
+conf.forEach(function(p,i){h+=_row(p,i%2===0?'ml-even-g':'ml-odd');});
+if(!conf.length)h+='<div class=ml-none>None</div>';
+h+='<div class=ml-gap></div>';
+h+='<div class=ml-hdr style="background:#7F6000">? NEEDS RESEARCH ('+res.length+' parcels) — Verify before writing</div>';
+h+=_colHdr();
+res.forEach(function(p,i){h+=_row(p,i%2===0?'ml-even-y':'ml-odd');});
+if(!res.length)h+='<div class=ml-none>None</div>';
+h+='<div class=ml-gap></div>';
+h+='<div class=ml-hdr style="background:#C00000">✘ DO NOT CALL ('+dnc.length+' parcels)</div>';
+h+=_colHdr();
+dnc.forEach(function(p){h+=_row(p,'ml-dnc');});
+if(!dnc.length)h+='<div class=ml-none>None</div>';
+document.getElementById('table-body').innerHTML=h;}
+function showTab(tab){
+document.getElementById('map').style.display=tab==='map'?'block':'none';
+document.getElementById('table-view').style.display=tab==='table'?'block':'none';
+if(tab==='map'){setTimeout(function(){map.invalidateSize();},100);}
+document.querySelectorAll('.tab-btn').forEach(function(b,i){
+b.classList.toggle('active',(tab==='map'&&i===0)||(tab==='table'&&i===1));});
+if(tab==='table'&&!window._tableBuilt){buildTable();window._tableBuilt=true;}}
+var legend=document.getElementById('legend');var dragging=false,ox=0,oy=0;legend.addEventListener('mousedown',function(e){if(e.target.id==='legend-close')return;dragging=true;ox=e.clientX-legend.getBoundingClientRect().left;oy=e.clientY-legend.getBoundingClientRect().top;legend.style.right='auto';legend.style.bottom='auto';e.preventDefault();});document.addEventListener('mousemove',function(e){if(!dragging)return;legend.style.left=(e.clientX-ox)+'px';legend.style.top=(e.clientY-oy)+'px';});document.addEventListener('mouseup',function(){dragging=false;});function shareTerritory(){var s=encodeURIComponent('Apartment_481 Territory Map');var b=encodeURIComponent('Hello,\n\nHere is the link for the Apartment_481 territory:\n\nhttps://spleaders.github.io/Territory-Maps-and-MailLists/Apartment_481/\n\nThis link opens a page with two buttons:\n- Open Interactive Map\n- Open Mailing List\n\nWorks on any device or browser - no software needed.\n\nThank you!');window.location.href='mailto:?subject='+s+'&body='+b;}function searchMapID(val){var clearBtn=document.getElementById('mapid-search-clear');if(!val){clearBtn.style.display='none';return;}clearBtn.style.display='inline';var id=parseInt(val);if(isNaN(id))return;var found=null;parcelsData.features.forEach(function(f){if(f.properties.mapid===id){found=f;}});if(!found)return;var coords=found.geometry.coordinates;function getCenter(c){var pts=[];function collect(x){if(typeof x[0]==='number')pts.push(x);else x.forEach(collect);}collect(c);var lat=pts.reduce(function(s,p){return s+p[1];},0)/pts.length;var lng=pts.reduce(function(s,p){return s+p[0];},0)/pts.length;return [lat,lng];}var center=getCenter(coords);map.setView(center,17);}function clearMapID(){document.getElementById('mapid-input').value='';document.getElementById('mapid-search-clear').style.display='none';}function printMap(){var c=map.getCenter();var z=map.getZoom();var el=document.getElementById('map');document.getElementById('share-btn').style.display='none';document.getElementById('print-btn').style.display='none';document.getElementById('btn-bar').style.display='none';el.style.position='fixed';el.style.top='0';el.style.left='0';el.style.width='100vw';el.style.height='100vh';el.style.zIndex='9999';map.invalidateSize();map.setView(c,z);setTimeout(function(){map.setView(c,z);requestAnimationFrame(function(){requestAnimationFrame(function(){window.print();});});},800);}window.onafterprint=function(){var el=document.getElementById('map');el.style.position='';el.style.top='';el.style.left='';el.style.width='';el.style.height='';el.style.zIndex='';map.invalidateSize();document.getElementById('share-btn').style.display='';document.getElementById('print-btn').style.display='';document.getElementById('btn-bar').style.display='';};</script></body>
+</html>

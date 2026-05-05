@@ -225,7 +225,7 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
 <div id="header">
   <div>
     <h1>Town_77 Territory</h1>
-    <div class="subtitle">Town_77_20260505_1630.xlsx</div>
+    <div class="subtitle">Town_77_20260505_1638.xlsx</div>
   </div>
   <div class="stats">
     101 parcels &nbsp;&nbsp;
@@ -472,7 +472,7 @@ function _colHdr(sec){
   var cols=['MapID','Owner 1','Owner 2','Site Address','St','Reason/Notes','Mailing Address'];
   var h='<div class=ml-col-header>';
   cols.forEach(function(c,i){
-    h+='<span onclick="_sortSection(''+sec+'','+i+')" title="Sort by '+c+'">'+c+_sortIndicator(sec,i)+'</span>';});
+    h+='<span data-sec="'+sec+'" data-col="'+i+'" onclick="_sortSection(this.dataset.sec,parseInt(this.dataset.col))" title="Sort by '+c+'">'+c+_sortIndicator(sec,i)+'</span>';});
   h+='</div>';
   return h;}
 function _sortSection(sec,col){

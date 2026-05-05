@@ -80,8 +80,7 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
 }
 #tab-bar {
   display: flex; background: #E53935;
-  padding: 0 12px; min-height: 40px; box-sizing: border-box;
-  overflow: visible; align-items: center;
+  padding: 0 12px; height: 40px; box-sizing: border-box;
 }
 .tab-btn {
   padding: 8px 20px; cursor: pointer; color: rgba(255,255,255,0.7);
@@ -155,19 +154,20 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
 .badge-vac2  { background: #808080; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
 .badge-dnc2  { background: #cc0000; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
 .badge-res2  { background: #E65100; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+#btn-bar {
+  position: absolute; top: 56px; left: 50%; transform: translateX(-50%);
+  z-index: 1000; display: flex; gap: 8px; align-items: center;
+}
 #share-btn, #print-btn {
-  background: transparent; border: 1px solid rgba(255,255,255,0.5);
-  border-radius: 6px; padding: 5px 12px;
-  font-size: 12px; font-weight: bold; color: rgba(255,255,255,0.85);
-  cursor: pointer; white-space: nowrap;
+  background: rgba(255,255,255,0.95); border: 1px solid #ccc;
+  border-radius: 8px; padding: 6px 14px;
+  font-size: 13px; font-weight: bold; color: #333;
+  cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
-#share-btn:hover, #print-btn:hover {
-  background: rgba(255,255,255,0.15); color: white;
-  border-color: white;
-}
+#share-btn:hover, #print-btn:hover { background: #f0f0f0; }
 @media print {
   @page { margin: 0; size: auto; }
-  #header, #tab-bar, #share-btn, #print-btn, #mapid-search,
+  #header, #tab-bar, #btn-bar, #share-btn, #print-btn, #mapid-search,
   #notes-bar, #table-view,
   .leaflet-control-container { display: none !important; }
   html, body { margin: 0 !important; padding: 0 !important;
@@ -185,23 +185,23 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
              font-size: 13px !important; }
 }
 #mapid-search {
-  background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.4);
-  border-radius: 6px; padding: 4px 10px;
-  display: flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.97); border: 1px solid #ccc;
+  border-radius: 8px; padding: 6px 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  display: flex; align-items: center; gap: 8px;
 }
 #mapid-search input {
-  border: none; outline: none; font-size: 12px;
-  width: 72px; background: transparent; color: white;
+  border: none; outline: none; font-size: 13px;
+  width: 80px; background: transparent;
 }
-#mapid-search input::placeholder { color: rgba(255,255,255,0.55); }
 #mapid-search label {
-  font-size: 12px; color: rgba(255,255,255,0.85); white-space: nowrap;
+  font-size: 12px; color: #666; white-space: nowrap;
 }
 #mapid-search-clear {
-  cursor: pointer; color: rgba(255,255,255,0.6); font-size: 13px;
+  cursor: pointer; color: #aaa; font-size: 14px;
   display: none;
 }
-#mapid-search-clear:hover { color: white; }
+#mapid-search-clear:hover { color: #333; }
 .ml-hdr{padding:10px 16px;font-weight:bold;font-size:13px;color:white;letter-spacing:0.5px;}
 .ml-col-header{display:grid;grid-template-columns:60px 200px 200px 240px 30px 200px 240px;
   background:#4472C4;color:white;font-size:12px;font-weight:bold;}
@@ -225,7 +225,7 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
 <div id="header">
   <div>
     <h1>Town_77 Territory</h1>
-    <div class="subtitle">Town_77_20260505_1617.xlsx</div>
+    <div class="subtitle">Town_77_20260505_1619.xlsx</div>
   </div>
   <div class="stats">
     101 parcels &nbsp;&nbsp;
@@ -236,22 +236,9 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
   </div>
 </div>
 <div id="notes-bar">DO NOT CALL: | Deanna Fabela | 161 Bischoff St | Fond du Lac, WI 54935</div>
-<div id="tab-bar" style="display:flex;align-items:center;justify-content:space-between;padding-right:10px;">
-  <div style="display:flex;">
-    <button class="tab-btn active" onclick="showTab('map')">&#x1F5FA; Map</button>
-    <button class="tab-btn" onclick="showTab('table')">&#x1F4CB; Mailing List</button>
-  </div>
-  <div style="display:flex;align-items:center;gap:8px;">
-    <button id="share-btn" onclick="shareTerritory()">&#x2709; Share Territory</button>
-    <button id="print-btn" onclick="printMap()">&#x1F5A8; Print Map</button>
-    <div id="mapid-search">
-      <label>&#x1F50D; MapID</label>
-      <input type="number" id="mapid-input" placeholder="e.g. 42" min="1"
-        oninput="searchMapID(this.value)"
-        onkeydown="if(event.key==='Escape'){clearMapID();}" />
-      <span id="mapid-search-clear" onclick="clearMapID()">&#x2715;</span>
-    </div>
-  </div>
+<div id="tab-bar">
+  <button class="tab-btn active" onclick="showTab('map')">&#x1F5FA; Map</button>
+  <button class="tab-btn" onclick="showTab('table')">&#x1F4CB; Mailing List</button>
 </div>
 <div id="map"></div>
 <div id="table-view">
@@ -260,6 +247,17 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
       style="padding:7px 12px;border:1px solid #ccc;border-radius:6px;font-size:13px;width:300px;">
   </div>
   <div id="table-body"></div>
+</div>
+<div id="btn-bar">
+<button id="share-btn" onclick="shareTerritory()">&#x2709; Share Territory</button>
+<button id="print-btn" onclick="printMap()">&#x1F5A8; Print Map</button>
+<div id="mapid-search">
+  <label>&#x1F50D; MapID</label>
+  <input type="number" id="mapid-input" placeholder="e.g. 42" min="1"
+    oninput="searchMapID(this.value)"
+    onkeydown="if(event.key==='Escape'){clearMapID();}" />
+  <span id="mapid-search-clear" onclick="clearMapID()">&#x2715;</span>
+</div>
 </div>
 <div id="legend">
   <h4>Legend <span id="legend-close" onclick="document.getElementById('legend').style.display='none'">&#x2715;</span></h4>
@@ -536,5 +534,5 @@ if(tab==='map'){setTimeout(function(){map.invalidateSize();},100);}
 document.querySelectorAll('.tab-btn').forEach(function(b,i){
 b.classList.toggle('active',(tab==='map'&&i===0)||(tab==='table'&&i===1));});
 if(tab==='table'&&!window._tableBuilt){buildTable();window._tableBuilt=true;}}
-var legend=document.getElementById('legend');var dragging=false,ox=0,oy=0;legend.addEventListener('mousedown',function(e){if(e.target.id==='legend-close')return;dragging=true;ox=e.clientX-legend.getBoundingClientRect().left;oy=e.clientY-legend.getBoundingClientRect().top;legend.style.right='auto';legend.style.bottom='auto';e.preventDefault();});document.addEventListener('mousemove',function(e){if(!dragging)return;legend.style.left=(e.clientX-ox)+'px';legend.style.top=(e.clientY-oy)+'px';});document.addEventListener('mouseup',function(){dragging=false;});function shareTerritory(){var s=encodeURIComponent('Town_77 Territory Map');var b=encodeURIComponent('Hello,\n\nHere is the link for the Town_77 territory:\n\nhttps://spleaders.github.io/Territory-Maps-and-MailLists/Town_77/\n\nThis link opens a page with two buttons:\n- Open Interactive Map\n- Open Mailing List\n\nWorks on any device or browser - no software needed.\n\nThank you!');window.location.href='mailto:?subject='+s+'&body='+b;}function searchMapID(val){var clearBtn=document.getElementById('mapid-search-clear');if(!val){clearBtn.style.display='none';return;}clearBtn.style.display='inline';var id=parseInt(val);if(isNaN(id))return;var found=null;parcelsData.features.forEach(function(f){if(f.properties.mapid===id){found=f;}});if(!found)return;var coords=found.geometry.coordinates;function getCenter(c){var pts=[];function collect(x){if(typeof x[0]==='number')pts.push(x);else x.forEach(collect);}collect(c);var lat=pts.reduce(function(s,p){return s+p[1];},0)/pts.length;var lng=pts.reduce(function(s,p){return s+p[0];},0)/pts.length;return [lat,lng];}var center=getCenter(coords);map.setView(center,17);}function clearMapID(){document.getElementById('mapid-input').value='';document.getElementById('mapid-search-clear').style.display='none';}function printMap(){var c=map.getCenter();var z=map.getZoom();var el=document.getElementById('map');document.getElementById('header').style.display='none';document.getElementById('tab-bar').style.display='none';el.style.position='fixed';el.style.top='0';el.style.left='0';el.style.width='100vw';el.style.height='100vh';el.style.zIndex='9999';map.invalidateSize();map.setView(c,z);setTimeout(function(){map.setView(c,z);requestAnimationFrame(function(){requestAnimationFrame(function(){window.print();});});},800);}window.onafterprint=function(){var el=document.getElementById('map');el.style.position='';el.style.top='';el.style.left='';el.style.width='';el.style.height='';el.style.zIndex='';map.invalidateSize();document.getElementById('header').style.display='';document.getElementById('tab-bar').style.display='';};</script></body>
+var legend=document.getElementById('legend');var dragging=false,ox=0,oy=0;legend.addEventListener('mousedown',function(e){if(e.target.id==='legend-close')return;dragging=true;ox=e.clientX-legend.getBoundingClientRect().left;oy=e.clientY-legend.getBoundingClientRect().top;legend.style.right='auto';legend.style.bottom='auto';e.preventDefault();});document.addEventListener('mousemove',function(e){if(!dragging)return;legend.style.left=(e.clientX-ox)+'px';legend.style.top=(e.clientY-oy)+'px';});document.addEventListener('mouseup',function(){dragging=false;});function shareTerritory(){var s=encodeURIComponent('Town_77 Territory Map');var b=encodeURIComponent('Hello,\n\nHere is the link for the Town_77 territory:\n\nhttps://spleaders.github.io/Territory-Maps-and-MailLists/Town_77/\n\nThis link opens a page with two buttons:\n- Open Interactive Map\n- Open Mailing List\n\nWorks on any device or browser - no software needed.\n\nThank you!');window.location.href='mailto:?subject='+s+'&body='+b;}function searchMapID(val){var clearBtn=document.getElementById('mapid-search-clear');if(!val){clearBtn.style.display='none';return;}clearBtn.style.display='inline';var id=parseInt(val);if(isNaN(id))return;var found=null;parcelsData.features.forEach(function(f){if(f.properties.mapid===id){found=f;}});if(!found)return;var coords=found.geometry.coordinates;function getCenter(c){var pts=[];function collect(x){if(typeof x[0]==='number')pts.push(x);else x.forEach(collect);}collect(c);var lat=pts.reduce(function(s,p){return s+p[1];},0)/pts.length;var lng=pts.reduce(function(s,p){return s+p[0];},0)/pts.length;return [lat,lng];}var center=getCenter(coords);map.setView(center,17);}function clearMapID(){document.getElementById('mapid-input').value='';document.getElementById('mapid-search-clear').style.display='none';}function printMap(){var c=map.getCenter();var z=map.getZoom();var el=document.getElementById('map');document.getElementById('share-btn').style.display='none';document.getElementById('print-btn').style.display='none';document.getElementById('btn-bar').style.display='none';el.style.position='fixed';el.style.top='0';el.style.left='0';el.style.width='100vw';el.style.height='100vh';el.style.zIndex='9999';map.invalidateSize();map.setView(c,z);setTimeout(function(){map.setView(c,z);requestAnimationFrame(function(){requestAnimationFrame(function(){window.print();});});},800);}window.onafterprint=function(){var el=document.getElementById('map');el.style.position='';el.style.top='';el.style.left='';el.style.width='';el.style.height='';el.style.zIndex='';map.invalidateSize();document.getElementById('share-btn').style.display='';document.getElementById('print-btn').style.display='';document.getElementById('btn-bar').style.display='';};</script></body>
 </html>

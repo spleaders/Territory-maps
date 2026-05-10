@@ -155,7 +155,7 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
 .badge-dnc2  { background: #cc0000; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
 .badge-res2  { background: #E65100; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
 #btn-bar {
-  position: absolute; top: 100px; left: 50%; transform: translateX(-50%);
+  position: absolute; top: 56px; left: 50%; transform: translateX(-50%);
   z-index: 1000; display: flex; gap: 8px; align-items: center;
 }
 #share-btn, #print-btn {
@@ -206,7 +206,8 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
 .ml-col-header{display:grid;grid-template-columns:60px 200px 200px 240px 30px 200px 240px;
   background:#4472C4;color:white;font-size:12px;font-weight:bold;}
 .ml-col-header span{padding:6px 8px;white-space:nowrap;overflow:hidden;
-  border-right:1px solid rgba(255,255,255,0.2);}
+  border-right:1px solid rgba(255,255,255,0.2);cursor:pointer;user-select:none;}
+.ml-col-header span:hover{background:rgba(255,255,255,0.15);}
 .ml-row{display:grid;grid-template-columns:60px 200px 200px 240px 30px 200px 240px;
   font-size:12px;border-bottom:1px solid #eee;}
 .ml-row span{padding:5px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -224,13 +225,13 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
 <div id="header">
   <div>
     <h1>Town_135 Territory</h1>
-    <div class="subtitle">Town_135_20260427_1517.xlsx</div>
+    <div class="subtitle">Town_135_20260427_1647.xlsx</div>
   </div>
   <div class="stats">
     528 parcels &nbsp;&nbsp;
     130 owner occupied &nbsp;&nbsp;
-    175 need research &nbsp;&nbsp;
-    152 vacant
+    176 need research &nbsp;&nbsp;
+    153 vacant
     
   </div>
 </div>
@@ -461,7 +462,34 @@ setTimeout(updateLabelSizes, 500);
 </style>
 <script>
 var _allRows=[];
-function _colHdr(){return '<div class=ml-col-header><span>MapID</span><span>Owner 1</span><span>Owner 2</span><span>Site Address</span><span>St</span><span>Reason/Notes</span><span>Mailing Address</span></div>';}
+var _sortState={conf:{col:-1,asc:true},res:{col:-1,asc:true},dnc:{col:-1,asc:true}};
+var _COLS=['mapid','owner','owner2','site','site_state','notes','mail'];
+function _sortIndicator(sec,idx){
+  var s=_sortState[sec];
+  if(s.col!==idx)return ' ▸';
+  return s.asc?' ▲':' ▼';}
+function _colHdr(sec){
+  var cols=['MapID','Owner 1','Owner 2','Site Address','St','Reason/Notes','Mailing Address'];
+  var h='<div class=ml-col-header>';
+  cols.forEach(function(c,i){
+    h+='<span data-sec="'+sec+'" data-col="'+i+'" onclick="_sortSection(this.dataset.sec,parseInt(this.dataset.col))" title="Sort by '+c+'">'+c+_sortIndicator(sec,i)+'</span>';});
+  h+='</div>';
+  return h;}
+function _sortSection(sec,col){
+  var s=_sortState[sec];
+  if(s.col===col){s.asc=!s.asc;}else{s.col=col;s.asc=true;}
+  renderTable(_allRows);}
+function _sortRows(arr,sec){
+  var s=_sortState[sec];
+  if(s.col<0)return arr.slice();
+  var key=_COLS[s.col];
+  return arr.slice().sort(function(a,b){
+    var av=String(a[key]||'').toLowerCase();
+    var bv=String(b[key]||'').toLowerCase();
+    if(key==='mapid'){av=parseInt(a[key]||0);bv=parseInt(b[key]||0);}
+    if(av<bv)return s.asc?-1:1;
+    if(av>bv)return s.asc?1:-1;
+    return 0;});}
 function _row(p,cls){
 var sa=(p.site||'')+(p.site_city?', '+p.site_city:'');
 var ma=(p.mail||'')+(p.city?', '+p.city:'')+(p.state?' '+p.state:'')+(p.zip?' '+p.zip:'');
@@ -485,19 +513,20 @@ rows.forEach(function(p){
 if(p.dnc==='YES'){dnc.push(p);}
 else if(p.occupied==='Yes'&&p.confidence==='High'&&p.research!=='Yes'){conf.push(p);}
 else{res.push(p);}});
+conf=_sortRows(conf,'conf');res=_sortRows(res,'res');dnc=_sortRows(dnc,'dnc');
 var h='';
 h+='<div class=ml-hdr style="background:#375623">✔ CONFIDENT RESIDENTS ('+conf.length+' parcels) — Ready to write letters</div>';
-h+=_colHdr();
+h+=_colHdr('conf');
 conf.forEach(function(p,i){h+=_row(p,i%2===0?'ml-even-g':'ml-odd');});
 if(!conf.length)h+='<div class=ml-none>None</div>';
 h+='<div class=ml-gap></div>';
 h+='<div class=ml-hdr style="background:#7F6000">? NEEDS RESEARCH ('+res.length+' parcels) — Verify before writing</div>';
-h+=_colHdr();
+h+=_colHdr('res');
 res.forEach(function(p,i){h+=_row(p,i%2===0?'ml-even-y':'ml-odd');});
 if(!res.length)h+='<div class=ml-none>None</div>';
 h+='<div class=ml-gap></div>';
 h+='<div class=ml-hdr style="background:#C00000">✘ DO NOT CALL ('+dnc.length+' parcels)</div>';
-h+=_colHdr();
+h+=_colHdr('dnc');
 dnc.forEach(function(p){h+=_row(p,'ml-dnc');});
 if(!dnc.length)h+='<div class=ml-none>None</div>';
 document.getElementById('table-body').innerHTML=h;}
@@ -508,5 +537,5 @@ if(tab==='map'){setTimeout(function(){map.invalidateSize();},100);}
 document.querySelectorAll('.tab-btn').forEach(function(b,i){
 b.classList.toggle('active',(tab==='map'&&i===0)||(tab==='table'&&i===1));});
 if(tab==='table'&&!window._tableBuilt){buildTable();window._tableBuilt=true;}}
-var legend=document.getElementById('legend');var dragging=false,ox=0,oy=0;legend.addEventListener('mousedown',function(e){if(e.target.id==='legend-close')return;dragging=true;ox=e.clientX-legend.getBoundingClientRect().left;oy=e.clientY-legend.getBoundingClientRect().top;legend.style.right='auto';legend.style.bottom='auto';e.preventDefault();});document.addEventListener('mousemove',function(e){if(!dragging)return;legend.style.left=(e.clientX-ox)+'px';legend.style.top=(e.clientY-oy)+'px';});document.addEventListener('mouseup',function(){dragging=false;});function shareTerritory(){var s=encodeURIComponent('Town_135 Territory Map');var b=encodeURIComponent('Hello,\n\nHere is the link for the Town_135 territory:\n\nhttps://spleaders.github.io/Territory-Maps-and-MailLists/Town_135/\n\nThis link opens a page with two buttons:\n- Open Interactive Map\n- Open Mailing List\n\nWorks on any device or browser - no software needed.\n\nThank you!');window.location.href='mailto:?subject='+s+'&body='+b;}function searchMapID(val){var clearBtn=document.getElementById('mapid-search-clear');if(!val){clearBtn.style.display='none';return;}clearBtn.style.display='inline';var id=parseInt(val);if(isNaN(id))return;var found=null;parcelsData.features.forEach(function(f){if(f.properties.mapid===id){found=f;}});if(!found)return;var coords=found.geometry.coordinates;function getCenter(c){var pts=[];function collect(x){if(typeof x[0]==='number')pts.push(x);else x.forEach(collect);}collect(c);var lat=pts.reduce(function(s,p){return s+p[1];},0)/pts.length;var lng=pts.reduce(function(s,p){return s+p[0];},0)/pts.length;return [lat,lng];}var center=getCenter(coords);map.setView(center,17);}function clearMapID(){document.getElementById('mapid-input').value='';document.getElementById('mapid-search-clear').style.display='none';}function printMap(){var c=map.getCenter();var z=map.getZoom();var el=document.getElementById('map');document.getElementById('share-btn').style.display='none';document.getElementById('print-btn').style.display='none';document.getElementById('btn-bar').style.display='none';el.style.position='fixed';el.style.top='0';el.style.left='0';el.style.width='100vw';el.style.height='100vh';el.style.zIndex='9999';map.invalidateSize();map.setView(c,z);setTimeout(function(){map.setView(c,z);requestAnimationFrame(function(){requestAnimationFrame(function(){window.print();});});},800);}window.onafterprint=function(){var el=document.getElementById('map');el.style.position='';el.style.top='';el.style.left='';el.style.width='';el.style.height='';el.style.zIndex='';map.invalidateSize();document.getElementById('share-btn').style.display='';document.getElementById('print-btn').style.display='';document.getElementById('btn-bar').style.display='';};</script></body>
+var legend=document.getElementById('legend');var dragging=false,ox=0,oy=0;legend.addEventListener('mousedown',function(e){if(e.target.id==='legend-close')return;dragging=true;ox=e.clientX-legend.getBoundingClientRect().left;oy=e.clientY-legend.getBoundingClientRect().top;legend.style.right='auto';legend.style.bottom='auto';e.preventDefault();});document.addEventListener('mousemove',function(e){if(!dragging)return;legend.style.left=(e.clientX-ox)+'px';legend.style.top=(e.clientY-oy)+'px';});document.addEventListener('mouseup',function(){dragging=false;});function shareTerritory(){var s=encodeURIComponent('Town_135 Territory Map');var b=encodeURIComponent('Hello,\n\nHere is the link for the Town_135 territory:\n\nhttps://spleaders.github.io/Territory-Maps-and-MailLists/Town_135/\n\nThis link opens a page with two buttons:\n- Open Interactive Map\n- Open Mailing List\n\nWorks on any device or browser - no software needed.\n\nThank you!');window.location.href='mailto:?subject='+s+'&body='+b;}function searchMapID(val){var clearBtn=document.getElementById('mapid-search-clear');if(!val){clearBtn.style.display='none';return;}clearBtn.style.display='inline';var id=parseInt(val);if(isNaN(id))return;var found=null;parcelsData.features.forEach(function(f){if(f.properties.mapid===id){found=f;}});if(!found)return;var coords=found.geometry.coordinates;function getCenter(c){var pts=[];function collect(x){if(typeof x[0]==='number')pts.push(x);else x.forEach(collect);}collect(c);var lat=pts.reduce(function(s,p){return s+p[1];},0)/pts.length;var lng=pts.reduce(function(s,p){return s+p[0];},0)/pts.length;return [lat,lng];}var center=getCenter(coords);if(window._mapidHighlight){window._mapidHighlight.remove();}window._mapidHighlight=L.circleMarker(center,{radius:33,color:'#FFD700',weight:4,fill:false,opacity:1}).addTo(map);setTimeout(function(){if(window._mapidHighlight){window._mapidHighlight.remove();window._mapidHighlight=null;}},10000);}function clearMapID(){document.getElementById('mapid-input').value='';document.getElementById('mapid-search-clear').style.display='none';}function printMap(){window.print();}</script></body>
 </html>

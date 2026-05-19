@@ -381,8 +381,9 @@ function getPopup(p) {
 
   var mailHtml = p.mail ? '<div class="popup-mail"> ' + p.mail + '</div>' : '';
   var saluteHtml = p.salute && p.salute !== 'nan' ? '<div class="popup-mail" style="color:#888">Salutation: ' + p.salute + '</div>' : '';
-  var mapsUrl  = 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(p.site + ', Fond du Lac, WI');
-  var mapsHtml = p.site ? '<div style="margin-top:6px"><a href="' + mapsUrl + '" target="_blank" style="font-size:12px;color:#1a73e8;text-decoration:none;">&#x1F4CD; Get Directions</a></div>' + '<div style="margin-top:2px"><a href="' + viewUrl + '" target="_blank" style="font-size:12px;color:#1a73e8;text-decoration:none;">&#x1F5FA; View on Google Maps</a></div>' : '';
+  var mapsUrl = 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(p.site + ', Fond du Lac, WI');
+  var viewUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(p.site + ', Fond du Lac, WI');
+  var mapsHtml = p.site ? '<div style="margin-top:6px"><a href="' + mapsUrl + '" target="_blank" style="font-size:12px;color:#1a73e8;text-decoration:none;">&#x1F4CD; Get Directions</a></div>' : '';
 
   return '<div class="popup-inner">' +
     '<div class="popup-mapid">Parcel #' + p.mapid + '</div>' +

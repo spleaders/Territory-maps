@@ -20,7 +20,7 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
 #header .stats { font-size: 12px; opacity: 0.9; }
 #map { height: calc(100vh - 96px); width: 100%; display: block; }
 .leaflet-popup-content-wrapper {
-  border-radius: 12px;
+  border-radius:0.7em;
   box-shadow: 0 6px 24px rgba(0,0,0,0.3);
   border-left: 6px solid #1A3A6B;
   padding: 0;
@@ -47,20 +47,20 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
 .badge-biz    { background: #7B2D8B; }
 .badge-dnc    { background: #cc0000; }
 .badge-research { background: #E65100; }
-#legend {
+.legend-resizer{position:absolute;bottom:4px;right:4px;width:14px;height:14px;cursor:se-resize;opacity:0.4;z-index:10;background:linear-gradient(135deg,transparent 50%,#888 50%,#888 60%,transparent 60%,transparent 70%,#888 70%,#888 80%,transparent 80%);}.legend-resizer:hover{opacity:0.8;}#legend {
   position: absolute; bottom: 24px; right: 10px; z-index: 1000;
-  background: white; border-radius: 12px; padding: 16px 22px;
+  background: white; border-radius:0.7em; padding:1em 1.3em;
   box-shadow: 0 2px 16px rgba(0,0,0,0.2); font-size: 17px;
-  min-width: 224px; cursor: move; user-select: none;
+  display:inline-block;width:max-content;min-width:80px;cursor:move;user-select:none;overflow:hidden;
 }
 #research-legend {
   position: absolute; bottom: 24px; left: 10px; z-index: 1000;
-  background: white; border-radius: 12px; padding: 16px 22px;
+  background: white; border-radius:0.7em; padding:1em 1.3em;
   box-shadow: 0 2px 16px rgba(0,0,0,0.2); font-size: 17px;
-  min-width: 260px; cursor: move; user-select: none;
+  display:inline-block;width:max-content;min-width:80px;cursor:move;user-select:none;overflow:hidden;
 }
 #legend h4 {
-  font-size: 18px; margin-bottom: 12px; color: #333;
+  font-size: 1.05em; margin-bottom: 0.7em; white-space: nowrap; color: #333;
   border-bottom: 2px solid #eee; padding-bottom: 6px;
 }
 #legend-close {
@@ -231,7 +231,7 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
 <div id="header">
   <div>
     <h1>R_271 Territory</h1>
-    <div class="subtitle">R_271_Research_Form.xlsx</div>
+    <div class="subtitle">R_271</div>
   </div>
   <div class="stats">
     186 parcels &nbsp;&nbsp;
@@ -285,6 +285,7 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
   <div class="legend-row">
     <div class="legend-swatch" style="background:#CC0000"></div>Do Not Contact
   </div>
+  <div class="legend-resizer" id="legend-resizer"></div>
 </div>
 <div id="research-legend">
   <h4>Research Status <span id="research-legend-close" onclick="document.getElementById('research-legend').style.display='none'">&#x2715;</span></h4>
@@ -297,6 +298,7 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; }
   <div class="legend-row">
     <div class="legend-swatch" style="background:transparent;border:4px solid #E65100;box-sizing:border-box"></div>Suspect — verify before mailing
   </div>
+  <div class="legend-resizer" id="research-legend-resizer"></div>
 </div>
 <script>
 var map = L.map('map', {zoomControl: true, preferCanvas: true, scrollWheelZoom: false, zoomSnap: 0.25, zoomDelta: 0.25});
@@ -378,12 +380,9 @@ function getPopup(p) {
 
   var mailHtml = p.mail ? '<div class="popup-mail"> ' + p.mail + '</div>' : '';
   var saluteHtml = p.salute && p.salute !== 'nan' ? '<div class="popup-mail" style="color:#888">Salutation: ' + p.salute + '</div>' : '';
-  var mapsUrl  = 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(p.site + ', Fond du Lac, WI');
-  var viewUrl  = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(p.site + ', Fond du Lac, WI');
-  var mapsHtml = p.site
-    ? '<div style="margin-top:6px"><a href="' + mapsUrl + '" target="_blank" style="font-size:12px;color:#1a73e8;text-decoration:none;">&#x1F4CD; Get Directions</a></div>'
-      + '<div style="margin-top:2px"><a href="' + viewUrl + '" target="_blank" style="font-size:12px;color:#1a73e8;text-decoration:none;">&#x1F5FA; View on Google Maps</a></div>'
-    : '';
+  var mapsUrl = 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(p.site + ', Fond du Lac, WI');
+  var viewUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(p.site + ', Fond du Lac, WI');
+  var mapsHtml = p.site ? '<div style="margin-top:6px"><a href="' + mapsUrl + '" target="_blank" style="font-size:12px;color:#1a73e8;text-decoration:none;">&#x1F4CD; Get Directions</a></div>' : '';
 
   return '<div class="popup-inner">' +
     '<div class="popup-mapid">Parcel #' + p.mapid + '</div>' +
@@ -495,27 +494,11 @@ function _sortIndicator(sec,idx){
   var s=_sortState[sec];
   if(s.col!==idx)return ' ▸';
   return s.asc?' ▲':' ▼';}
-// Column widths state (matches CSS grid initial values)
-var _colWidths=[60,200,200,240,30,200,240];
-function _colWidthsCSS(){return _colWidths.map(function(w){return w+'px';}).join(' ');}
-function _applyColWidths(){
-  var css=_colWidthsCSS();
-  document.querySelectorAll('.ml-col-header').forEach(function(el){el.style.gridTemplateColumns=css;});
-  document.querySelectorAll('.ml-row').forEach(function(el){el.style.gridTemplateColumns=css;});}
-function _colResizeStart(e,colIdx){
-  e.preventDefault();e.stopPropagation();
-  var startX=e.clientX,startW=_colWidths[colIdx];
-  function onMove(ev){_colWidths[colIdx]=Math.max(40,startW+(ev.clientX-startX));_applyColWidths();}
-  function onUp(){document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);}
-  document.addEventListener('mousemove',onMove);document.addEventListener('mouseup',onUp);}
 function _colHdr(sec){
   var cols=['MapID','Owner 1','Owner 2','Site Address','St','Reason/Notes','Mailing Address'];
   var h='<div class=ml-col-header>';
   cols.forEach(function(c,i){
-    h+='<span data-sec="'+sec+'" data-col="'+i+'" onclick="_sortSection(this.dataset.sec,parseInt(this.dataset.col))" title="Sort by '+c+' | Drag right edge to resize">'
-      +c+_sortIndicator(sec,i)
-      +'<span class="col-resizer" onmousedown="event.stopPropagation();_colResizeStart(event,'+i+')" onclick="event.stopPropagation()"></span>'
-      +'</span>';});
+    h+='<span data-sec="'+sec+'" data-col="'+i+'" onclick="_sortSection(this.dataset.sec,parseInt(this.dataset.col))" title="Sort by '+c+'">'+c+_sortIndicator(sec,i)+'</span>';});
   h+='</div>';
   return h;}
 function _sortSection(sec,col){
@@ -534,7 +517,7 @@ function _sortRows(arr,sec){
     if(av>bv)return s.asc?1:-1;
     return 0;});}
 function _row(p,cls){
-var sa=(p.site||'')+(p.site_city?', '+p.site_city:'');
+var sa=(p.site||'')+(p.site_city?', '+p.site_city:'')+(p.site_zip?' '+p.site_zip:'');
 var ma=(p.mail||'')+(p.city?', '+p.city:'')+(p.state?' '+p.state:'')+(p.zip?' '+p.zip:'');
 return '<div class="ml-row '+cls+'">'
 +'<span>'+p.mapid+'</span>'
@@ -557,15 +540,14 @@ if(p.dnc==='YES'){dnc.push(p);}
 else if(p.occupied==='Yes'&&p.confidence==='High'&&p.research!=='Yes'){conf.push(p);}
 else if(p.verified_name&&p.verified_name!==''&&p.research!=='Yes'){ver.push(p);}
 else{res.push(p);}});
-conf=_sortRows(conf,'conf');ver=_sortRows(ver,'ver');res=_sortRows(res,'res');dnc=_sortRows(dnc,'dnc');
+conf=_sortRows(conf,'conf');res=_sortRows(res,'res');dnc=_sortRows(dnc,'dnc');
 var h='';
 h+='<div class=ml-hdr style="background:#375623">✔ CONFIDENT RESIDENTS ('+conf.length+' parcels) — Ready to write letters</div>';
 h+=_colHdr('conf');
 conf.forEach(function(p,i){h+=_row(p,i%2===0?'ml-even-g':'ml-odd');});
 if(!conf.length)h+='<div class=ml-none>None</div>';
 h+='<div class=ml-gap></div>';
-if(ver.length){
-h+='<div class=ml-hdr style="background:#1A5C3A">✓ VERIFIED ('+ver.length+' parcels) — Looked up via Melissa or field research</div>';
+if(ver.length){h+='<div class=ml-hdr style="background:#1A5C3A">\u2713 VERIFIED ('+ver.length+' parcels) \u2014 Looked up via Melissa or field research</div>';
 h+=_colHdr('ver');
 ver.forEach(function(p,i){h+=_row(p,i%2===0?'ml-even-g':'ml-odd');});
 h+='<div class=ml-gap></div>';}
@@ -586,5 +568,5 @@ if(tab==='map'){setTimeout(function(){map.invalidateSize();},100);}
 document.querySelectorAll('.tab-btn').forEach(function(b,i){
 b.classList.toggle('active',(tab==='map'&&i===0)||(tab==='table'&&i===1));});
 if(tab==='table'&&!window._tableBuilt){buildTable();window._tableBuilt=true;}}
-var legend=document.getElementById('legend');var dragging=false,ox=0,oy=0;legend.addEventListener('mousedown',function(e){if(e.target.id==='legend-close')return;dragging=true;ox=e.clientX-legend.getBoundingClientRect().left;oy=e.clientY-legend.getBoundingClientRect().top;legend.style.right='auto';legend.style.bottom='auto';e.preventDefault();});document.addEventListener('mousemove',function(e){if(!dragging)return;legend.style.left=(e.clientX-ox)+'px';legend.style.top=(e.clientY-oy)+'px';});document.addEventListener('mouseup',function(){dragging=false;});var rleg=document.getElementById('research-legend');var rdrag=false,rx=0,ry=0;rleg.addEventListener('mousedown',function(e){if(e.target.id==='research-legend-close')return;rdrag=true;rx=e.clientX-rleg.getBoundingClientRect().left;ry=e.clientY-rleg.getBoundingClientRect().top;rleg.style.left='auto';rleg.style.bottom='auto';e.preventDefault();});document.addEventListener('mousemove',function(e){if(!rdrag)return;rleg.style.left=(e.clientX-rx)+'px';rleg.style.top=(e.clientY-ry)+'px';});document.addEventListener('mouseup',function(){rdrag=false;});function shareTerritory(){var s=encodeURIComponent('R_271 Territory Map');var b=encodeURIComponent('Hello,\n\nHere is the link for the R_271 territory:\n\nhttps://spleaders.github.io/Territory-Maps-and-MailLists/R_271/\n\nThis link opens a page with two buttons:\n- Open Interactive Map\n- Open Mailing List\n\nWorks on any device or browser - no software needed.\n\nThank you!');window.location.href='mailto:?subject='+s+'&body='+b;}function searchMapID(val){var clearBtn=document.getElementById('mapid-search-clear');if(!val){clearBtn.style.display='none';return;}clearBtn.style.display='inline';var id=parseInt(val);if(isNaN(id))return;var found=null;parcelsData.features.forEach(function(f){if(f.properties.mapid===id){found=f;}});if(!found)return;var coords=found.geometry.coordinates;function getCenter(c){var pts=[];function collect(x){if(typeof x[0]==='number')pts.push(x);else x.forEach(collect);}collect(c);var lat=pts.reduce(function(s,p){return s+p[1];},0)/pts.length;var lng=pts.reduce(function(s,p){return s+p[0];},0)/pts.length;return [lat,lng];}var center=getCenter(coords);map.setView(center,17);if(window._mapidHighlight){window._mapidHighlight.remove();}window._mapidHighlight=L.circleMarker(center,{radius:33,color:'#FFD700',weight:4,fill:false,opacity:1}).addTo(map);setTimeout(function(){if(window._mapidHighlight){window._mapidHighlight.remove();window._mapidHighlight=null;}},10000);}function clearMapID(){document.getElementById('mapid-input').value='';document.getElementById('mapid-search-clear').style.display='none';}function printMap(){window.print();}</script></body>
+var legend=document.getElementById('legend');var dragging=false,ox=0,oy=0;legend.addEventListener('mousedown',function(e){if(e.target!==legend&&!e.target.closest('h4'))return;dragging=true;ox=e.clientX-legend.getBoundingClientRect().left;oy=e.clientY-legend.getBoundingClientRect().top;legend.style.right='auto';legend.style.bottom='auto';e.preventDefault();});document.addEventListener('mousemove',function(e){if(!dragging)return;legend.style.left=(e.clientX-ox)+'px';legend.style.top=(e.clientY-oy)+'px';});document.addEventListener('mouseup',function(){dragging=false;});var rleg=document.getElementById('research-legend');var rdrag=false,rx=0,ry=0;rleg.addEventListener('mousedown',function(e){if(e.target!==rleg&&!e.target.closest('h4'))return;rdrag=true;rx=e.clientX-rleg.getBoundingClientRect().left;ry=e.clientY-rleg.getBoundingClientRect().top;rleg.style.left='auto';rleg.style.bottom='auto';e.preventDefault();});document.addEventListener('mousemove',function(e){if(!rdrag)return;rleg.style.left=(e.clientX-rx)+'px';rleg.style.top=(e.clientY-ry)+'px';});document.addEventListener('mouseup',function(){rdrag=false;});function shareTerritory(){var s=encodeURIComponent('R_271 Territory Map');var b=encodeURIComponent('Hello,\n\nHere is the link for the R_271 territory:\n\nhttps://spleaders.github.io/Territory-Maps-and-MailLists/R_271/\n\nThis link opens a page with two buttons:\n- Open Interactive Map\n- Open Mailing List\n\nWorks on any device or browser - no software needed.\n\nThank you!');window.location.href='mailto:?subject='+s+'&body='+b;}function searchMapID(val){var clearBtn=document.getElementById('mapid-search-clear');if(!val){clearBtn.style.display='none';return;}clearBtn.style.display='inline';var id=parseInt(val);if(isNaN(id))return;var found=null;parcelsData.features.forEach(function(f){if(f.properties.mapid===id){found=f;}});if(!found)return;var coords=found.geometry.coordinates;function getCenter(c){var pts=[];function collect(x){if(typeof x[0]==='number')pts.push(x);else x.forEach(collect);}collect(c);var lat=pts.reduce(function(s,p){return s+p[1];},0)/pts.length;var lng=pts.reduce(function(s,p){return s+p[0];},0)/pts.length;return [lat,lng];}var center=getCenter(coords);map.setView(center,17);if(window._mapidHighlight){window._mapidHighlight.remove();}window._mapidHighlight=L.circleMarker(center,{radius:33,color:'#FFD700',weight:4,fill:false,opacity:1}).addTo(map);setTimeout(function(){if(window._mapidHighlight){window._mapidHighlight.remove();window._mapidHighlight=null;}},10000);}function clearMapID(){document.getElementById('mapid-input').value='';document.getElementById('mapid-search-clear').style.display='none';}function printMap(){window.print();}</script><script>function _legendResizeSetup(lid,gid){var el=document.getElementById(lid),grip=document.getElementById(gid);if(!el||!grip)return;var sx,sy,sfs,_on=false;grip.addEventListener('mousedown',function(e){e.preventDefault();e.stopPropagation();_on=true;sx=e.clientX;sy=e.clientY;sfs=parseFloat(window.getComputedStyle(el).fontSize)||17;document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);});function mv(e){if(!_on)return;var d=Math.max(e.clientX-sx,e.clientY-sy);el.style.fontSize=Math.max(10,Math.min(30,sfs+d*0.05))+'px';}function up(){_on=false;document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);}}_legendResizeSetup('legend','legend-resizer');_legendResizeSetup('research-legend','research-legend-resizer');</script></body>
 </html>

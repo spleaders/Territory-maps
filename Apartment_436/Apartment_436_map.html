@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Apartment_436 Territory Map</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: #f0f0f0; }
+#header {
+  background: #4CAF50; color: white;
+  padding: 8px 16px; display: flex;
+  align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 4px; min-height: 56px; box-sizing: border-box;
+}
+#header h1 { font-size: 17px; font-weight: bold; margin: 0; line-height: 1.2; }
+#header .subtitle { font-size: 10px; opacity: 0.75; margin-top: 1px; }
+#header .stats { font-size: 12px; opacity: 0.9; }
+#map { height: calc(100vh - 96px); width: 100%; display: block; }
+.leaflet-popup-content-wrapper {
+  border-radius:0.7em;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.3);
+  border-left: 6px solid #4CAF50;
+  padding: 0;
+}
+.leaflet-popup-content { margin: 0; width: 360px !important; }
+.popup-inner { padding: 18px 22px; }
+.popup-mapid {
+  font-size: 14px; color: #888; text-transform: uppercase;
+  letter-spacing: 1px; margin-bottom: 4px;
+}
+.popup-site {
+  font-size: 20px; font-weight: bold; color: #4CAF50;
+  margin-bottom: 7px; line-height: 1.3;
+}
+.popup-owner { font-size: 17px; color: #222; margin-bottom: 4px; }
+.popup-mail { font-size: 17px; color: #555; margin-bottom: 10px; }
+.popup-badge {
+  display: inline-block; padding: 5px 12px; border-radius: 10px;
+  font-size: 14px; font-weight: bold; color: white; margin-right: 4px;
+}
+.badge-owner  { background: #4CAF50; }
+.badge-vacant { background: #808080; }
+.badge-inst   { background: #548235; }
+.badge-biz    { background: #7B2D8B; }
+.badge-dnc    { background: #cc0000; }
+.badge-research { background: #E65100; }
+.legend-resizer{position:absolute;bottom:4px;right:4px;width:14px;height:14px;cursor:se-resize;opacity:0.4;z-index:10;background:linear-gradient(135deg,transparent 50%,#888 50%,#888 60%,transparent 60%,transparent 70%,#888 70%,#888 80%,transparent 80%);}.legend-resizer:hover{opacity:0.8;}#legend {
+  position: absolute; bottom: 24px; right: 10px; z-index: 1000;
+  background: white; border-radius:0.7em; padding:1em 1.3em;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.2); font-size: 17px;
+  display:inline-block;width:max-content;min-width:80px;cursor:move;user-select:none;overflow:hidden;
+}
+#research-legend {
+  position: absolute; bottom: 24px; left: 10px; z-index: 1000;
+  background: white; border-radius:0.7em; padding:1em 1.3em;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.2); font-size: 17px;
+  display:inline-block;width:max-content;min-width:80px;cursor:move;user-select:none;overflow:hidden;
+}
+#legend h4 {
+  font-size: 1.05em; margin-bottom: 0.7em; white-space: nowrap; color: #333;
+  border-bottom: 2px solid #eee; padding-bottom: 6px;
+}
+#legend-close {
+  float: right; cursor: pointer; font-size: 16px; color: #aaa;
+}
+#legend-close:hover { color: #333; }
+.legend-row { display: flex; align-items: center; margin-bottom: 10px; }
+.legend-swatch {
+  width: 20px; height: 20px; border-radius: 4px;
+  margin-right: 12px; flex-shrink: 0;
+  border: 1px solid rgba(0,0,0,0.25);
+  display: inline-block !important;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+#notes-bar {
+  display: none; position: absolute; top: 58px; left: 10px;
+  right: 10px; z-index: 1000;
+  background: #FFF8E1; border-left: 4px solid #F5A623;
+  border-radius: 6px; padding: 8px 12px;
+  font-size: 12px; color: #555; max-width: 500px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+#tab-bar {
+  display: flex; background: #4CAF50;
+  padding: 0 12px; height: 40px; box-sizing: border-box;
+}
+.tab-btn {
+  padding: 8px 20px; cursor: pointer; color: rgba(255,255,255,0.7);
+  font-size: 13px; font-weight: bold; border: none;
+  background: transparent; border-bottom: 3px solid transparent;
+}
+.tab-btn.active {
+  color: white; border-bottom: 3px solid white;
+}
+
+#table-view {
+  display: none; height: calc(100vh - 90px);
+  overflow-x: scroll; overflow-y: auto; padding: 16px; background: #f5f5f5;
+}
+#table-view::-webkit-scrollbar {
+  height: 12px; width: 12px;
+}
+#table-view::-webkit-scrollbar-track {
+  background: #ddd; border-radius: 6px;
+}
+#table-view::-webkit-scrollbar-thumb {
+  background: #888; border-radius: 6px;
+}
+#table-view::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+#search-box {
+  width: 100%; max-width: 400px; padding: 8px 12px;
+  border: 1px solid #ccc; border-radius: 6px;
+  font-size: 14px; margin-bottom: 12px;
+}
+#data-table {
+  width: 1480px; border-collapse: collapse;
+  table-layout: fixed;
+  background: white; font-size: 13px;
+}
+#table-wrapper {
+  display: block; overflow-x: auto;
+  border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+#data-table th {
+  background: #4CAF50; color: white;
+  padding: 10px 12px; text-align: left;
+  cursor: pointer; white-space: nowrap;
+  user-select: none; position: sticky;
+  top: 0; z-index: 10; min-width: 60px;
+}
+#data-table th:hover { opacity: 0.85; }
+#data-table th.sort-asc::after { content: " "; font-size: 10px; }
+#data-table th.sort-desc::after { content: " "; font-size: 10px; }
+#data-table td {
+  padding: 8px 12px; border-bottom: 1px solid #eee;
+  vertical-align: top; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+  max-width: 0;
+}
+#data-table td:hover {
+  white-space: normal; overflow: visible;
+  background: #fffde7; position: relative; z-index: 5;
+}
+#data-table th {
+  position: sticky; top: 0; z-index: 10;
+  resize: horizontal; overflow: auto;
+  min-width: 40px;
+}
+#data-table tr:hover td { background: #f0f4ff; }
+.badge-res   { background: #4CAF50; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+.badge-biz2  { background: #7B2D8B; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+.badge-inst2 { background: #548235; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+.badge-vac2  { background: #808080; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+.badge-dnc2  { background: #cc0000; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+.badge-res2  { background: #E65100; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+#btn-bar {
+  position: absolute; top: 56px; left: 50%; transform: translateX(-50%);
+  z-index: 1000; display: flex; gap: 8px; align-items: center;
+}
+#share-btn, #print-btn {
+  background: rgba(255,255,255,0.95); border: 1px solid #ccc;
+  border-radius: 8px; padding: 6px 14px;
+  font-size: 13px; font-weight: bold; color: #333;
+  cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+#share-btn:hover, #print-btn:hover { background: #f0f0f0; }
+@media print {
+  @page { margin: 0; size: auto; }
+  #header, #tab-bar, #btn-bar, #share-btn, #print-btn, #mapid-search,
+  #notes-bar, #table-view,
+  .leaflet-control-container { display: none !important; }
+  html, body { margin: 0 !important; padding: 0 !important;
+                overflow: hidden !important; }
+  #map { position: fixed !important;
+          top: 0 !important; left: 0 !important;
+          width: 100vw !important; height: 100vh !important;
+          z-index: 1 !important; }
+  #legend { z-index: 2 !important;
+             max-width: 200px !important;
+             right: 10px !important;
+             bottom: 10px !important;
+             left: auto !important;
+             top: auto !important;
+             font-size: 13px !important; }
+}
+#mapid-search {
+  background: rgba(255,255,255,0.97); border: 1px solid #ccc;
+  border-radius: 8px; padding: 6px 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  display: flex; align-items: center; gap: 8px;
+}
+#mapid-search input {
+  border: none; outline: none; font-size: 13px;
+  width: 80px; background: transparent;
+}
+#mapid-search label {
+  font-size: 12px; color: #666; white-space: nowrap;
+}
+#mapid-search-clear {
+  cursor: pointer; color: #aaa; font-size: 14px;
+  display: none;
+}
+#mapid-search-clear:hover { color: #333; }
+.ml-hdr{padding:10px 16px;font-weight:bold;font-size:13px;color:white;letter-spacing:0.5px;}
+.ml-col-header{display:grid;grid-template-columns:60px 200px 200px 240px 30px 200px 240px;
+  background:#4472C4;color:white;font-size:12px;font-weight:bold;}
+.ml-col-header span{padding:6px 8px;white-space:nowrap;overflow:hidden;
+  border-right:1px solid rgba(255,255,255,0.2);cursor:pointer;user-select:none;}
+.ml-col-header span:hover{background:rgba(255,255,255,0.15);}
+.ml-row{display:grid;grid-template-columns:60px 200px 200px 240px 30px 200px 240px;
+  font-size:12px;border-bottom:1px solid #eee;}
+.ml-row span{padding:5px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ml-row:hover span{white-space:normal;overflow:visible;background:#fffde7;
+  position:relative;z-index:5;}
+.ml-even-g{background:#E2EFDA;}
+.ml-odd{background:#FFFFFF;}
+.ml-even-y{background:#FFF2CC;}
+.ml-dnc{background:#FFB3B3;}
+.ml-gap{height:12px;background:#e8e8e8;}
+.ml-none{padding:8px 16px;color:#888;font-size:12px;font-style:italic;}
+</style>
+</head>
+<body>
+<div id="header">
+  <div>
+    <h1>Apartment_436 Territory</h1>
+    <div class="subtitle">Apartment_436</div>
+  </div>
+  <div class="stats">
+    4 parcels &nbsp;&nbsp;
+    0 owner occupied &nbsp;&nbsp;
+    4 need research &nbsp;&nbsp;
+    0 vacant
+    
+  </div>
+</div>
+<div id="notes-bar">Before working apartment territories.  Please review the following:  KM 12/08 pg. 3-4 and KM 11/85 Pg. 3-6 | Countryside Village Apartments.  848, 844, 840, 830, 828, 826 Security Drive.</div>
+<div id="tab-bar">
+  <button class="tab-btn active" onclick="showTab('map')">&#x1F5FA; Map</button>
+  <button class="tab-btn" onclick="showTab('table')">&#x1F4CB; Mailing List</button>
+</div>
+<div id="map"></div>
+<div id="table-view">
+  <div style="padding:10px 16px 6px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+    <input type="text" id="search-box" placeholder="Search by name, address, MapID..." oninput="filterTable()"
+      style="padding:7px 12px;border:1px solid #ccc;border-radius:6px;font-size:13px;width:300px;">
+  </div>
+  <div id="table-body"></div>
+</div>
+<div id="btn-bar">
+<button id="share-btn" onclick="shareTerritory()">&#x2709; Share Territory</button>
+<button id="print-btn" onclick="printMap()">&#x1F5A8; Print Map</button>
+<div id="mapid-search">
+  <label>&#x1F50D; MapID</label>
+  <input type="number" id="mapid-input" placeholder="e.g. 42" min="1"
+    oninput="searchMapID(this.value)"
+    onkeydown="if(event.key==='Escape'){clearMapID();}" />
+  <span id="mapid-search-clear" onclick="clearMapID()">&#x2715;</span>
+</div>
+</div>
+<div id="legend">
+  <h4>Legend <span id="legend-close" onclick="document.getElementById('legend').style.display='none'">&#x2715;</span></h4>
+  <div class="legend-row">
+    <div class="legend-swatch" style="background:#2E5496"></div>Owner Occupied
+  </div>
+  <div class="legend-row">
+    <div class="legend-swatch" style="background:#5B9BD5"></div>Needs Research
+  </div>
+  <div class="legend-row">
+    <div class="legend-swatch" style="background:#548235"></div>Institution
+  </div>
+  <div class="legend-row">
+    <div class="legend-swatch" style="background:#7B2D8B"></div>Business
+  </div>
+  <div class="legend-row">
+    <div class="legend-swatch" style="background:#808080"></div>Vacant
+  </div>
+  <div class="legend-row">
+    <div class="legend-swatch" style="background:#CC0000"></div>Do Not Contact
+  </div>
+  <div class="legend-resizer" id="legend-resizer"></div>
+</div>
+<div id="research-legend">
+  <h4>Research Status <span id="research-legend-close" onclick="document.getElementById('research-legend').style.display='none'">&#x2715;</span></h4>
+  <div class="legend-row">
+    <div class="legend-swatch" style="background:transparent;border:4px solid #FFCC00;box-sizing:border-box"></div>Needs Research
+  </div>
+  <div class="legend-row">
+    <div class="legend-swatch" style="background:transparent;border:4px solid #2E8B57;box-sizing:border-box"></div>Verified
+  </div>
+  <div class="legend-row">
+    <div class="legend-swatch" style="background:transparent;border:4px solid #E65100;box-sizing:border-box"></div>Suspect — verify before mailing
+  </div>
+  <div class="legend-resizer" id="research-legend-resizer"></div>
+</div>
+<script>
+var map = L.map('map', {zoomControl: true, preferCanvas: true, scrollWheelZoom: false, zoomSnap: 0.25, zoomDelta: 0.25});
+document.getElementById('map').addEventListener('wheel', function(e){ e.preventDefault(); var delta = e.deltaY > 0 ? -0.25 : 0.25; var mousePos = map.mouseEventToLatLng(e); map.setZoomAround(mousePos, map.getZoom() + delta); }, {passive: false});
+L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+  attribution: ' OpenStreetMap contributors | CartoDB', maxZoom: 20, subdomains: 'abcd'
+}).addTo(map);
+
+var boundaryData = {"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"coordinates": [[[-88.47913920879364, 43.78882884279211], [-88.47778737545013, 43.78861972486489], [-88.47782492637634, 43.78789555157441], [-88.4793484210968, 43.787992366693494], [-88.47953617572784, 43.78832928208562], [-88.47913920879364, 43.78882884279211], [-88.47913920879364, 43.78882884279211], [-88.47913920879364, 43.78882884279211]]], "type": "Polygon"}, "properties": {}}]};
+var buildingsData = {"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-88.478949, 43.788049], [-88.479174, 43.788049], [-88.479174, 43.788581], [-88.478949, 43.788581], [-88.478949, 43.788049]]]}, "properties": {"mapid": 1, "subid": "1c", "site": "830 SECURITY DR, Fond du Lac WI 54935", "owner": "COUNTRYSIDE VILLAGE APARTMENTS LLC", "salute": "Dear Resident", "sheet": "Multi_Occupant"}}, {"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-88.47819, 43.788587], [-88.477964, 43.788586], [-88.477967, 43.788055], [-88.478194, 43.788056], [-88.47819, 43.788587]]]}, "properties": {"mapid": 1, "subid": "1a", "site": "826 SECURITY DR, Fond du Lac WI 54935", "owner": "COUNTRYSIDE VILLAGE APARTMENTS LLC", "salute": "Dear Resident", "sheet": "Multi_Occupant"}}, {"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[-88.478667, 43.78867], [-88.478474, 43.78867], [-88.478474, 43.788263], [-88.478667, 43.788263], [-88.478667, 43.78867]]]}, "properties": {"mapid": 1, "subid": "1b", "site": "828 SECURITY DR, Fond du Lac WI 54935", "owner": "COUNTRYSIDE VILLAGE APARTMENTS LLC", "salute": "Dear Resident", "sheet": "Multi_Occupant"}}]};
+var isApartment = true;
+var tableData = [{"mapid": "1a", "owner": "COUNTRYSIDE VILLAGE APARTMENTS LLC", "owner2": "", "site": "826 SECURITY DR", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "% FOCUS PROPERTY MANAGEMENT", "city": "Kaukauna", "state": "WI", "zip": "54130", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Countryside Village Apartments Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant", "verified_name": ""}, {"mapid": "1b", "owner": "COUNTRYSIDE VILLAGE APARTMENTS LLC", "owner2": "", "site": "828 SECURITY DR", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "% FOCUS PROPERTY MANAGEMENT", "city": "Kaukauna", "state": "WI", "zip": "54130", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Countryside Village Apartments Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant", "verified_name": ""}, {"mapid": "1c", "owner": "COUNTRYSIDE VILLAGE APARTMENTS LLC", "owner2": "", "site": "830 SECURITY DR", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "% FOCUS PROPERTY MANAGEMENT", "city": "Kaukauna", "state": "WI", "zip": "54130", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Countryside Village Apartments Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant", "verified_name": ""}, {"mapid": "1d", "owner": "COUNTRYSIDE VILLAGE APARTMENTS LLC", "owner2": "", "site": "840 SECURITY DR", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "% FOCUS PROPERTY MANAGEMENT", "city": "Kaukauna", "state": "WI", "zip": "54130", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Countryside Village Apartments Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant", "verified_name": ""}, {"mapid": "1e", "owner": "COUNTRYSIDE VILLAGE APARTMENTS LLC", "owner2": "", "site": "844 SECURITY DR", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "% FOCUS PROPERTY MANAGEMENT", "city": "Kaukauna", "state": "WI", "zip": "54130", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Countryside Village Apartments Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant", "verified_name": ""}, {"mapid": "1f", "owner": "COUNTRYSIDE VILLAGE APARTMENTS LLC", "owner2": "", "site": "848 SECURITY DR", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "% FOCUS PROPERTY MANAGEMENT", "city": "Kaukauna", "state": "WI", "zip": "54130", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Countryside Village Apartments Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant", "verified_name": ""}, {"mapid": "2", "owner": "ATRCORINTH FOREST LLC", "owner2": "", "site": "913 W JOHNSON STREET", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "4645 N CENTRAL EXPY STE 200", "city": "Dallas", "state": "TX", "zip": "75205", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Atrcorinth Forest Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant", "verified_name": ""}, {"mapid": "3", "owner": "ATRCORINTH FOREST LLC", "owner2": "", "site": "875 W JOHNSON STREET", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "4645 N CENTRAL EXPY STE 200", "city": "Dallas", "state": "TX", "zip": "75205", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Atrcorinth Forest Llc", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant", "verified_name": ""}, {"mapid": "4", "owner": "MEIJER STORES LIMITED PARTNERSHIP", "owner2": "", "site": "835 W JOHNSON STREET", "site_city": "Fond du Lac", "site_state": "WI", "site_zip": "54935", "mail": "ATTN: PROPERTY TAX DEPT", "city": "Grand Rapids", "state": "MI", "zip": "49544", "btype": "Apartment Building", "ownertype": "Business / Rental", "occupied": "No", "confidence": "High", "addressas": "Meijer Stores Limited Partnership", "salute": "Dear Resident", "dnc": "", "research": "Yes", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "sheet": "Multi_Occupant", "verified_name": ""}];
+
+if (buildingsData) {
+  L.geoJSON(buildingsData, {
+    style: {
+      fillColor: '#555555',
+      fillOpacity: 0.55,
+      color: '#333333',
+      weight: 0.8
+    },
+    interactive: isApartment,
+    onEachFeature: isApartment ? function(feature, layer) {
+      var p = feature.properties;
+      // Permanent sub-ID label on each building footprint
+      var label = p.subid ? p.subid.toUpperCase() : (p.mapid ? String(p.mapid) : '');
+      if (label) {
+        layer.bindTooltip(label, {
+          permanent: true, direction: 'center',
+          className: 'mapid-label', offset: [0, 0]
+        });
+      }
+      if (p.site && p.site !== '') {
+        var subLabel = p.subid ? p.subid.toUpperCase() : ('Parcel #' + p.mapid);
+        var saluteHtml = p.salute && p.salute !== 'nan' && p.salute !== ''
+          ? '<div class="popup-mail" style="color:#888">Salutation: ' + p.salute + '</div>' : '';
+        var html = '<div class="popup-inner">' +
+          '<div class="popup-mapid">Building ' + subLabel + '</div>' +
+          '<div class="popup-site">' + p.site + '</div>' +
+          '<div class="popup-owner">' + (p.owner || '') + '</div>' +
+          saluteHtml +
+          '</div>';
+        layer.bindPopup(html, {maxWidth: 300});
+      }
+    } : function(feature, layer) {}
+  }).addTo(map);
+}
+
+if (boundaryData) {
+  var boundary = L.geoJSON(boundaryData, {
+    style: {
+      color: '#4CAF50', weight: 3, opacity: 1,
+      fillColor: '#4CAF50', fillOpacity: 0.04,
+      dashArray: '8,5'
+    }
+  }).addTo(map);
+  map.fitBounds(boundary.getBounds(), {padding: [30, 30]});
+  // Territory name label — centered on boundary, semi-transparent
+  var bounds = boundary.getBounds();
+  var center = bounds.getCenter();
+  L.marker(center, {
+    icon: L.divIcon({
+      className: '',
+      html: '<div style="font-size:52px;font-weight:900;'
+           +'color:#1A3A6B;opacity:0.55;'
+           +'white-space:nowrap;pointer-events:none;'
+           +'position:relative;z-index:9999;'
+           +'text-shadow:2px 2px 0px white,-2px -2px 0px white,2px -2px 0px white,-2px 2px 0px white;'
+           +'transform:translate(-50%,-50%);">Apartment_436</div>',
+      iconSize: [0, 0],
+      iconAnchor: [0, 0]
+    }),
+    interactive: false
+  }).addTo(map);
+}
+
+var parcelsData = {"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"coordinates": [[[[-88.47782492637634, 43.78789555157441], [-88.4778567464767, 43.78789757367974], [-88.47785623795356, 43.78799072372967], [-88.4778562366627, 43.787990855129216], [-88.47781997483767, 43.78799104248273], [-88.47782492637634, 43.78789555157441]]]], "type": "MultiPolygon"}, "properties": {"mapid": 4, "owner": "MEIJER STORES LIMITED PARTNERSHIP", "site": "835 W JOHNSON STREET, Fond du Lac WI 54935", "mail": "ATTN: PROPERTY TAX DEPT", "sheet": "Multi_Occupant", "occupied": "No", "btype": "Apartment Building", "research": "Yes", "salute": "Dear Resident", "dnc": "", "fill": "#2E5496", "owner2": "", "ownertype": "Business / Rental", "confidence": "High", "addressas": "Meijer Stores Limited Partnership", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "city": "Grand Rapids", "state": "MI", "zip": "49544", "border_color": "#FFCC00", "border_width": 4, "verified_name": ""}}, {"type": "Feature", "geometry": {"coordinates": [[[[-88.47886797239818, 43.78796183511544], [-88.47886785387153, 43.78798561785106], [-88.4778562366627, 43.787990855129216], [-88.47785623795356, 43.78799072372967], [-88.4778567464767, 43.78789757367974], [-88.47886797239818, 43.78796183511544]]]], "type": "MultiPolygon"}, "properties": {"mapid": 3, "owner": "ATRCORINTH FOREST LLC", "site": "875 W JOHNSON STREET, Fond du Lac WI 54935", "mail": "4645 N CENTRAL EXPY STE 200", "sheet": "Multi_Occupant", "occupied": "No", "btype": "Apartment Building", "research": "Yes", "salute": "Dear Resident", "dnc": "", "fill": "#2E5496", "owner2": "", "ownertype": "Business / Rental", "confidence": "High", "addressas": "Atrcorinth Forest Llc", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "city": "Dallas", "state": "TX", "zip": "75205", "border_color": "#FFCC00", "border_width": 4, "verified_name": ""}}, {"type": "Feature", "geometry": {"coordinates": [[[[-88.47921395264032, 43.78798382148526], [-88.47886785387153, 43.78798561785106], [-88.47886797239818, 43.78796183511544], [-88.47921395264032, 43.78798382148526]]]], "type": "MultiPolygon"}, "properties": {"mapid": 2, "owner": "ATRCORINTH FOREST LLC", "site": "913 W JOHNSON STREET, Fond du Lac WI 54935", "mail": "4645 N CENTRAL EXPY STE 200", "sheet": "Multi_Occupant", "occupied": "No", "btype": "Apartment Building", "research": "Yes", "salute": "Dear Resident", "dnc": "", "fill": "#2E5496", "owner2": "", "ownertype": "Business / Rental", "confidence": "High", "addressas": "Atrcorinth Forest Llc", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "city": "Dallas", "state": "TX", "zip": "75205", "border_color": "#FFCC00", "border_width": 4, "verified_name": ""}}, {"type": "Feature", "geometry": {"coordinates": [[[[-88.47778737545013, 43.78861972486489], [-88.47781997483767, 43.78799104248273], [-88.4778562366627, 43.787990855129216], [-88.47886785387153, 43.78798561785106], [-88.47921395264032, 43.78798382148526], [-88.4793484210968, 43.787992366693494], [-88.47953617572784, 43.78832928208562], [-88.47913920879364, 43.78882884279211], [-88.47778737545013, 43.78861972486489]]]], "type": "MultiPolygon"}, "properties": {"mapid": 1, "owner": "COUNTRYSIDE VILLAGE APARTMENTS LLC", "site": "1A: 826 SECURITY DR, Fond du Lac WI 54935 | 1B: 828 SECURITY DR, Fond du Lac WI 54935 | 1C: 830 SECURITY DR, Fond du Lac WI 54935 | 1D: 840 SECURITY DR, Fond du Lac WI 54935 | 1E: 844 SECURITY DR, Fond du Lac WI 54935 | 1F: 848 SECURITY DR, Fond du Lac WI 54935", "mail": "% FOCUS PROPERTY MANAGEMENT", "sheet": "Multi_Occupant", "occupied": "No", "btype": "Apartment Building", "research": "Yes", "salute": "Dear Resident", "dnc": "", "fill": "#2E5496", "owner2": "", "ownertype": "Business / Rental", "confidence": "High", "addressas": "Countryside Village Apartments Llc", "notes": "Apartment building \u2014 run Melissa units script for individual unit mailing list \u2014 ADD INDIVIDUAL UNIT ROWS BELOW", "city": "Kaukauna", "state": "WI", "zip": "54130", "border_color": "#FFCC00", "border_width": 4, "verified_name": ""}}]};
+
+function getPopup(p) {
+  var badge = '';
+  if (p.dnc === 'YES') badge = '<span class="popup-badge badge-dnc">DO NOT CONTACT</span>';
+  else if (p.sheet === 'Institutions') badge = '<span class="popup-badge badge-inst">' + p.btype + '</span>';
+  else if (p.sheet === 'Vacant') badge = '<span class="popup-badge badge-vacant">Vacant</span>';
+  else if (p.btype === 'Commercial / Rental') badge = '<span class="popup-badge badge-biz">Business</span>';
+  else if (p.occupied === 'Yes') badge = '<span class="popup-badge badge-owner">Owner Occupied</span>';
+  if (p.research === 'Yes') badge += '<span class="popup-badge badge-research">Research Needed</span>';
+
+  var mailHtml = p.mail ? '<div class="popup-mail"> ' + p.mail + '</div>' : '';
+  var saluteHtml = p.salute && p.salute !== 'nan' ? '<div class="popup-mail" style="color:#888">Salutation: ' + p.salute + '</div>' : '';
+  var mapsUrl = 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(p.site + ', Fond du Lac, WI');
+  var viewUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(p.site + ', Fond du Lac, WI');
+  var mapsHtml = p.site ? '<div style="margin-top:6px"><a href="' + mapsUrl + '" target="_blank" style="font-size:12px;color:#1a73e8;text-decoration:none;">&#x1F4CD; Get Directions</a></div>' : '';
+
+  return '<div class="popup-inner">' +
+    '<div class="popup-mapid">Parcel #' + p.mapid + '</div>' +
+    '<div class="popup-site">' + p.site + '</div>' +
+    '<div class="popup-owner">' + p.owner + '</div>' +
+    mailHtml + saluteHtml +
+    mapsHtml +
+    '<div style="margin-top:6px">' + badge + '</div>' +
+    '</div>';
+}
+
+function getParcelArea(feature) {
+  var coords = feature.geometry.coordinates;
+  var allPoints = [];
+  function collectPoints(c) {
+    if (typeof c[0] === 'number') { allPoints.push(c); }
+    else { c.forEach(collectPoints); }
+  }
+  collectPoints(coords);
+  if (allPoints.length < 2) return 0;
+  var lats = allPoints.map(function(p) { return p[1]; });
+  var lngs = allPoints.map(function(p) { return p[0]; });
+  return (Math.max.apply(null,lats)-Math.min.apply(null,lats)) * (Math.max.apply(null,lngs)-Math.min.apply(null,lngs));
+}
+function getOpacity(feature) {
+  var area = getParcelArea(feature);
+  if (area < 0.000005) return 0.35;
+  if (area < 0.00005)  return 0.25;
+  if (area < 0.0002)   return 0.18;
+  return 0.12;
+}
+// Store per-parcel area for label sizing
+var parcelAreas = {};
+parcelsData.features.forEach(function(f) {
+  parcelAreas[f.properties.mapid] = getParcelArea(f);
+});
+
+L.geoJSON(parcelsData, {
+  style: function(feature) {
+    var p = feature.properties;
+    var hasBorder = p.border_color && p.border_color !== '';
+    return {
+      fillColor: p.fill,
+      fillOpacity: getOpacity(feature),
+      color:   hasBorder ? p.border_color : 'rgba(0,0,0,0.65)',
+      weight:  hasBorder ? (p.border_width || 4) : 2.0,
+      opacity: 1
+    };
+  },
+  onEachFeature: function(feature, layer) {
+    var p = feature.properties;
+    layer.bindPopup(getPopup(p), {maxWidth: 300});
+    var area = getParcelArea(feature);
+    // Store area on tooltip element for zoom-aware sizing
+    var tt = layer.bindTooltip(String(p.mapid), {
+      permanent: true, direction: 'center',
+      className: 'mapid-label',
+      offset: [0, 0]
+    });
+    layer.on('tooltipopen', function(e) {
+      e.tooltip.getElement().setAttribute('data-area', area);
+    });
+  }
+}).addTo(map);
+
+if (!boundaryData) {
+  map.setView([43.77, -88.43], 14);
+}
+
+// Scale MapID labels by zoom level AND parcel area
+function updateLabelSizes() {
+  var z = map.getZoom();
+  // Base size from zoom
+  var baseSize;
+  if      (z <= 13) baseSize = 11;
+  else if (z <= 14) baseSize = 15;
+  else if (z <= 15) baseSize = 19;
+  else if (z <= 16) baseSize = 24;
+  else              baseSize = 30;
+  document.querySelectorAll('.mapid-label').forEach(function(el) {
+    var area = parseFloat(el.getAttribute('data-area') || 0);
+    var scale = 1.0;
+    // Shrink labels for small parcels
+    if      (area < 0.000003) scale = 0.45;
+    else if (area < 0.000008) scale = 0.60;
+    else if (area < 0.00002)  scale = 0.75;
+    else if (area < 0.00006)  scale = 0.88;
+    var finalSize = Math.max(7, Math.round(baseSize * scale));
+    el.style.fontSize = finalSize + 'px';
+  });
+}
+map.on('zoomend', updateLabelSizes);
+map.on('load', updateLabelSizes);
+setTimeout(updateLabelSizes, 500);
+</script>
+<style>
+.mapid-label {
+  background: transparent; border: none; box-shadow: none;
+  font-weight: bold; color: white;
+  text-shadow: 0 0 3px rgba(0,0,0,0.9), 0 0 3px rgba(0,0,0,0.9);
+  pointer-events: none; transition: font-size 0.1s;
+}
+</style>
+<script>
+var _allRows=[];
+var _sortState={conf:{col:-1,asc:true},ver:{col:-1,asc:true},res:{col:-1,asc:true},dnc:{col:-1,asc:true}};
+var _COLS=['mapid','owner','owner2','site','site_state','notes','mail'];
+function _sortIndicator(sec,idx){
+  var s=_sortState[sec];
+  if(s.col!==idx)return ' ▸';
+  return s.asc?' ▲':' ▼';}
+function _colHdr(sec){
+  var cols=['MapID','Owner 1','Owner 2','Site Address','St','Reason/Notes','Mailing Address'];
+  var h='<div class=ml-col-header>';
+  cols.forEach(function(c,i){
+    h+='<span data-sec="'+sec+'" data-col="'+i+'" onclick="_sortSection(this.dataset.sec,parseInt(this.dataset.col))" title="Sort by '+c+'">'+c+_sortIndicator(sec,i)+'</span>';});
+  h+='</div>';
+  return h;}
+function _sortSection(sec,col){
+  var s=_sortState[sec];
+  if(s.col===col){s.asc=!s.asc;}else{s.col=col;s.asc=true;}
+  renderTable(_allRows);}
+function _sortRows(arr,sec){
+  var s=_sortState[sec];
+  if(s.col<0)return arr.slice();
+  var key=_COLS[s.col];
+  return arr.slice().sort(function(a,b){
+    var av=String(a[key]||'').toLowerCase();
+    var bv=String(b[key]||'').toLowerCase();
+    if(key==='mapid'){av=parseInt(a[key]||0);bv=parseInt(b[key]||0);}
+    if(av<bv)return s.asc?-1:1;
+    if(av>bv)return s.asc?1:-1;
+    return 0;});}
+function _row(p,cls){
+var sa=(p.site||'')+(p.site_city?', '+p.site_city:'')+(p.site_zip?' '+p.site_zip:'');
+var ma=(p.mail||'')+(p.city?', '+p.city:'')+(p.state?' '+p.state:'')+(p.zip?' '+p.zip:'');
+return '<div class="ml-row '+cls+'">'
++'<span>'+p.mapid+'</span>'
++'<span>'+(p.owner||'')+'</span>'
++'<span>'+(p.owner2||'')+'</span>'
++'<span>'+sa+'</span>'
++'<span>'+(p.site_state||'')+'</span>'
++'<span>'+(p.notes||'')+'</span>'
++'<span>'+ma+'</span>'
++'</div>';}
+function buildTable(){_allRows=tableData.slice();renderTable(_allRows);}
+function filterTable(){
+var q=document.getElementById('search-box').value.toLowerCase();
+renderTable(_allRows.filter(function(p){
+return [p.mapid,p.owner,p.owner2,p.site,p.site_city,p.mail,p.city,p.notes].join(' ').toLowerCase().indexOf(q)>=0;}));}
+function renderTable(rows){
+var conf=[],ver=[],res=[],dnc=[];
+rows.forEach(function(p){
+if(p.dnc==='YES'){dnc.push(p);}
+else if(p.occupied==='Yes'&&p.confidence==='High'&&p.research!=='Yes'){conf.push(p);}
+else if(p.verified_name&&p.verified_name!==''&&p.research!=='Yes'){ver.push(p);}
+else{res.push(p);}});
+conf=_sortRows(conf,'conf');res=_sortRows(res,'res');dnc=_sortRows(dnc,'dnc');
+var h='';
+h+='<div class=ml-hdr style="background:#375623">✔ CONFIDENT RESIDENTS ('+conf.length+' parcels) — Ready to write letters</div>';
+h+=_colHdr('conf');
+conf.forEach(function(p,i){h+=_row(p,i%2===0?'ml-even-g':'ml-odd');});
+if(!conf.length)h+='<div class=ml-none>None</div>';
+h+='<div class=ml-gap></div>';
+if(ver.length){h+='<div class=ml-hdr style="background:#1A5C3A">\u2713 VERIFIED ('+ver.length+' parcels) \u2014 Looked up via Melissa or field research</div>';
+h+=_colHdr('ver');
+ver.forEach(function(p,i){h+=_row(p,i%2===0?'ml-even-g':'ml-odd');});
+h+='<div class=ml-gap></div>';}
+h+='<div class=ml-hdr style="background:#7F6000">? NEEDS RESEARCH ('+res.length+' parcels) — Verify before writing</div>';
+h+=_colHdr('res');
+res.forEach(function(p,i){h+=_row(p,i%2===0?'ml-even-y':'ml-odd');});
+if(!res.length)h+='<div class=ml-none>None</div>';
+h+='<div class=ml-gap></div>';
+h+='<div class=ml-hdr style="background:#C00000">✘ DO NOT CALL ('+dnc.length+' parcels)</div>';
+h+=_colHdr('dnc');
+dnc.forEach(function(p){h+=_row(p,'ml-dnc');});
+if(!dnc.length)h+='<div class=ml-none>None</div>';
+document.getElementById('table-body').innerHTML=h;}
+function showTab(tab){
+document.getElementById('map').style.display=tab==='map'?'block':'none';
+document.getElementById('table-view').style.display=tab==='table'?'block':'none';
+if(tab==='map'){setTimeout(function(){map.invalidateSize();},100);}
+document.querySelectorAll('.tab-btn').forEach(function(b,i){
+b.classList.toggle('active',(tab==='map'&&i===0)||(tab==='table'&&i===1));});
+if(tab==='table'&&!window._tableBuilt){buildTable();window._tableBuilt=true;}}
+var legend=document.getElementById('legend');var dragging=false,ox=0,oy=0;legend.addEventListener('mousedown',function(e){if(e.target!==legend&&!e.target.closest('h4'))return;dragging=true;ox=e.clientX-legend.getBoundingClientRect().left;oy=e.clientY-legend.getBoundingClientRect().top;legend.style.right='auto';legend.style.bottom='auto';e.preventDefault();});document.addEventListener('mousemove',function(e){if(!dragging)return;legend.style.left=(e.clientX-ox)+'px';legend.style.top=(e.clientY-oy)+'px';});document.addEventListener('mouseup',function(){dragging=false;});var rleg=document.getElementById('research-legend');var rdrag=false,rx=0,ry=0;rleg.addEventListener('mousedown',function(e){if(e.target!==rleg&&!e.target.closest('h4'))return;rdrag=true;rx=e.clientX-rleg.getBoundingClientRect().left;ry=e.clientY-rleg.getBoundingClientRect().top;rleg.style.left='auto';rleg.style.bottom='auto';e.preventDefault();});document.addEventListener('mousemove',function(e){if(!rdrag)return;rleg.style.left=(e.clientX-rx)+'px';rleg.style.top=(e.clientY-ry)+'px';});document.addEventListener('mouseup',function(){rdrag=false;});function shareTerritory(){var s=encodeURIComponent('Apartment_436 Territory Map');var b=encodeURIComponent('Hello,\n\nHere is the link for the Apartment_436 territory:\n\nhttps://spleaders.github.io/Territory-Maps-and-MailLists/Apartment_436/\n\nThis link opens a page with two buttons:\n- Open Interactive Map\n- Open Mailing List\n\nWorks on any device or browser - no software needed.\n\nThank you!');window.location.href='mailto:?subject='+s+'&body='+b;}function searchMapID(val){var clearBtn=document.getElementById('mapid-search-clear');if(!val){clearBtn.style.display='none';return;}clearBtn.style.display='inline';var id=parseInt(val);if(isNaN(id))return;var found=null;parcelsData.features.forEach(function(f){if(f.properties.mapid===id){found=f;}});if(!found)return;var coords=found.geometry.coordinates;function getCenter(c){var pts=[];function collect(x){if(typeof x[0]==='number')pts.push(x);else x.forEach(collect);}collect(c);var lat=pts.reduce(function(s,p){return s+p[1];},0)/pts.length;var lng=pts.reduce(function(s,p){return s+p[0];},0)/pts.length;return [lat,lng];}var center=getCenter(coords);map.setView(center,17);if(window._mapidHighlight){window._mapidHighlight.remove();}window._mapidHighlight=L.circleMarker(center,{radius:33,color:'#FFD700',weight:4,fill:false,opacity:1}).addTo(map);setTimeout(function(){if(window._mapidHighlight){window._mapidHighlight.remove();window._mapidHighlight=null;}},10000);}function clearMapID(){document.getElementById('mapid-input').value='';document.getElementById('mapid-search-clear').style.display='none';}function printMap(){window.print();}</script><script>function _legendResizeSetup(lid,gid){var el=document.getElementById(lid),grip=document.getElementById(gid);if(!el||!grip)return;var sx,sy,sfs,_on=false;grip.addEventListener('mousedown',function(e){e.preventDefault();e.stopPropagation();_on=true;sx=e.clientX;sy=e.clientY;sfs=parseFloat(window.getComputedStyle(el).fontSize)||17;document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);});function mv(e){if(!_on)return;var d=Math.max(e.clientX-sx,e.clientY-sy);el.style.fontSize=Math.max(10,Math.min(30,sfs+d*0.05))+'px';}function up(){_on=false;document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);}}_legendResizeSetup('legend','legend-resizer');_legendResizeSetup('research-legend','research-legend-resizer');</script></body>
+</html>
